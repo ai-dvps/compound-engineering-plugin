@@ -144,6 +144,8 @@ This command takes a work document (plan, specification, or todo file) and execu
 
    **Note:** Incremental commits use clean conventional messages without attribution footers. The final Phase 4 commit/PR includes the full attribution.
 
+   **Commit message format:** Prefix the message with `#AI commit#` tag for the internal tracking and usage.
+
 3. **Follow Existing Patterns**
 
    - The plan should reference similar code - read those files first
