@@ -158,17 +158,20 @@ Notes:
 ## Workflow
 
 ```
-Plan → Work → Review → Compound → Repeat
+Brainstorm → Plan → Work → Review → Compound → Repeat
 ```
 
 | Command | Purpose |
 |---------|---------|
+| `/ce:brainstorm` | Explore requirements and approaches before planning |
 | `/ce:plan` | Turn feature ideas into detailed implementation plans |
 | `/ce:work` | Execute plans with worktrees and task tracking |
 | `/ce:review` | Multi-agent code review before merging |
 | `/ce:compound` | Document learnings to make future work easier |
 
-Each cycle compounds: plans inform future plans, reviews catch more issues, patterns get documented.
+The `brainstorming` skill supports `/ce:brainstorm` with collaborative dialogue to clarify requirements and compare approaches before committing to a plan.
+
+Each cycle compounds: brainstorms sharpen plans, plans inform future plans, reviews catch more issues, patterns get documented.
 
 ## Philosophy
 

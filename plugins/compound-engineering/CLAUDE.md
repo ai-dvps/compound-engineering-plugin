@@ -34,14 +34,15 @@ agents/
 ├── workflow/   # Workflow automation agents
 └── docs/       # Documentation agents
 
-commands/
-├── ce/         # Core workflow commands (ce:plan, ce:review, etc.)
-├── workflows/  # Deprecated aliases for ce:* commands
-└── *.md        # Utility commands
-
 skills/
-└── *.md        # All skills at root level
+├── ce-*/          # Core workflow skills (ce:plan, ce:review, etc.)
+├── workflows-*/   # Deprecated aliases for ce:* skills
+└── */             # All other skills
 ```
+
+> **Note:** Commands were migrated to skills in v2.39.0. All former
+> `/command-name` slash commands now live under `skills/command-name/SKILL.md`
+> and work identically (Claude Code 2.1.3+ merged the two formats).
 
 ## Command Naming Convention
 
