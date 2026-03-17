@@ -72,8 +72,8 @@ This documentation serves as a reminder. When Claude Code works on this plugin, 
 
 ## Related Files
 
-- `/Users/kieranklaassen/compound-engineering-plugin/plugins/compound-engineering/.claude-plugin/plugin.json`
-- `/Users/kieranklaassen/compound-engineering-plugin/plugins/compound-engineering/CHANGELOG.md`
-- `/Users/kieranklaassen/compound-engineering-plugin/plugins/compound-engineering/README.md`
-- `/Users/kieranklaassen/compound-engineering-plugin/package.json`
-- `/Users/kieranklaassen/compound-engineering-plugin/CHANGELOG.md`
+- `plugins/compound-engineering/.claude-plugin/plugin.json`
+- `plugins/compound-engineering/CHANGELOG.md`
+- `plugins/compound-engineering/README.md`
+- `package.json`
+- `CHANGELOG.md`

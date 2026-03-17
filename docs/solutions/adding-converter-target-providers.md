@@ -687,7 +687,7 @@ Use this checklist when adding a new target provider:
 
 ## Related Files
 
-- `/C:/Source/compound-engineering-plugin/.claude-plugin/plugin.json` — Version and component counts
-- `/C:/Source/compound-engineering-plugin/CHANGELOG.md` — Recent additions and patterns
-- `/C:/Source/compound-engineering-plugin/README.md` — Usage examples for all targets
-- `/C:/Source/compound-engineering-plugin/docs/solutions/plugin-versioning-requirements.md` — Checklist for releases
+- `plugins/compound-engineering/.claude-plugin/plugin.json` — Version and component counts
+- `CHANGELOG.md` — Recent additions and patterns
+- `README.md` — Usage examples for all targets
+- `docs/solutions/plugin-versioning-requirements.md` — Checklist for releases
