@@ -34,10 +34,22 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Detect release PR merge
+        id: detect
+        run: |
+          MSG=$(git log -1 --format=%s)
+          if [[ "$MSG" == chore:\ release* ]]; then
+            echo "is_release_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_release_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Validate release metadata scripts
+        if: steps.detect.outputs.is_release_merge == 'false'
         run: bun run release:validate
 
       - name: Close stale release PR
+        if: steps.detect.outputs.is_release_merge == 'false'
         run: |
           PR=$(gh pr list --head release-please--branches--main --json number --jq '.[0].number')
           if [ -n "$PR" ]; then
