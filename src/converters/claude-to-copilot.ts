@@ -53,7 +53,7 @@ function convertAgent(agent: ClaudeAgent, usedNames: Set<string>): CopilotAgent 
     infer: true,
   }
 
-  if (agent.model) {
+  if (agent.model && agent.model !== "inherit") {
     frontmatter.model = agent.model
   }
 

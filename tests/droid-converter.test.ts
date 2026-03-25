@@ -89,7 +89,7 @@ describe("convertClaudeToDroid", () => {
     expect(bundle.skillDirs[0].sourceDir).toBe("/tmp/plugin/skills/existing-skill")
   })
 
-  test("sets model to inherit when not specified", () => {
+  test("omits model when set to inherit", () => {
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
       agents: [
@@ -110,7 +110,7 @@ describe("convertClaudeToDroid", () => {
     })
 
     const parsed = parseFrontmatter(bundle.droids[0].content)
-    expect(parsed.data.model).toBe("inherit")
+    expect(parsed.data.model).toBeUndefined()
   })
 
   test("transforms Task agent calls to droid-compatible syntax", () => {

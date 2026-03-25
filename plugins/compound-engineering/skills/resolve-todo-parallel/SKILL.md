@@ -10,7 +10,9 @@ Resolve all TODO comments using parallel processing, document lessons learned, t
 
 ### 1. Analyze
 
-Get all unresolved TODOs from the /todos/*.md directory
+Get all unresolved TODOs from `.context/compound-engineering/todos/*.md` and legacy `todos/*.md`
+
+Residual actionable work may come from `ce:review-beta mode:autonomous` after its in-skill `safe_auto` pass. Treat those todos as normal unresolved work items; the review skill has already decided they should not be auto-fixed inline.
 
 If any todo recommends deleting, removing, or gitignoring files in `docs/brainstorms/`, `docs/plans/`, or `docs/solutions/`, skip it and mark it as `wont_fix`. These are compound-engineering pipeline artifacts that are intentional and permanent.
 
@@ -52,9 +54,9 @@ GATE: STOP. Verify that the compound skill produced a solution document in `docs
 
 ### 6. Clean Up Completed Todos
 
-List all todos and identify those with `done` or `resolved` status, then delete them to keep the todo list clean and actionable.
+Search both `.context/compound-engineering/todos/` and legacy `todos/` for files with `done`, `resolved`, or `complete` status, then delete them to keep the todo list clean and actionable.
 
-If a scratch directory was used and the user did not ask to inspect it, clean it up after todo cleanup succeeds.
+If a per-run scratch directory was created at `.context/compound-engineering/resolve-todo-parallel/<run-id>/`, and the user did not ask to inspect it, delete that specific `<run-id>/` directory after todo cleanup succeeds. Do not delete any other `.context/` subdirectories.
 
 After cleanup, output a summary:
 

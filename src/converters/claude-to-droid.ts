@@ -75,7 +75,10 @@ function convertAgent(agent: ClaudeAgent): DroidAgentFile {
   const frontmatter: Record<string, unknown> = {
     name,
     description: agent.description,
-    model: agent.model && agent.model !== "inherit" ? agent.model : "inherit",
+  }
+
+  if (agent.model && agent.model !== "inherit") {
+    frontmatter.model = agent.model
   }
 
   const tools = mapAgentTools(agent)

@@ -264,7 +264,7 @@ function rewriteClaudePaths(body: string): string {
 // Update these when new model generations are released.
 const CLAUDE_FAMILY_ALIASES: Record<string, string> = {
   haiku: "claude-haiku-4-5",
-  sonnet: "claude-sonnet-4-5",
+  sonnet: "claude-sonnet-4-6",
   opus: "claude-opus-4-6",
 }
 
