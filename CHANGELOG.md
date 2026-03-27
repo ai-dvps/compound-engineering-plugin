@@ -1,5 +1,51 @@
 # Changelog
 
+## [2.56.0](https://github.com/ai-dvps/compound-engineering-plugin/compare/cli-v2.55.0...cli-v2.56.0) (2026-03-27)
+
+
+### Features
+
+* add `ce:review-beta` with structured persona pipeline ([#348](https://github.com/ai-dvps/compound-engineering-plugin/issues/348)) ([e932276](https://github.com/ai-dvps/compound-engineering-plugin/commit/e9322768664e194521894fe770b87c7dabbb8a22))
+* add adversarial review agents for code and documents ([#403](https://github.com/ai-dvps/compound-engineering-plugin/issues/403)) ([5e6cd5c](https://github.com/ai-dvps/compound-engineering-plugin/commit/5e6cd5c90950588fb9b0bc3a5cbecba2a1387080))
+* add branch-based plugin install for worktree workflows ([#395](https://github.com/ai-dvps/compound-engineering-plugin/issues/395)) ([e09a742](https://github.com/ai-dvps/compound-engineering-plugin/commit/e09a7426be6ba1cd86122e7519abfe3376849ade))
+* add CLI agent-readiness reviewer and principles guide ([#391](https://github.com/ai-dvps/compound-engineering-plugin/issues/391)) ([13aa3fa](https://github.com/ai-dvps/compound-engineering-plugin/commit/13aa3fa8465dce6c037e1bb8982a2edad13f199a))
+* add consolidation support and overlap detection to `ce:compound` and `ce:compound-refresh` skills ([#372](https://github.com/ai-dvps/compound-engineering-plugin/issues/372)) ([fe27f85](https://github.com/ai-dvps/compound-engineering-plugin/commit/fe27f85810268a8e713ef2c921f0aec1baf771d7))
+* add execution mode toggle and context pressure bounds to parallel skills ([#336](https://github.com/ai-dvps/compound-engineering-plugin/issues/336)) ([216d6df](https://github.com/ai-dvps/compound-engineering-plugin/commit/216d6dfb2c9320c3354f8c9f30e831fca74865cd))
+* add git commit and branch helper skills ([#378](https://github.com/ai-dvps/compound-engineering-plugin/issues/378)) ([fe08af2](https://github.com/ai-dvps/compound-engineering-plugin/commit/fe08af2b417b707b6d3192a954af7ff2ab0fe667))
+* add new `onboarding` skill to create onboarding guide for repo ([#384](https://github.com/ai-dvps/compound-engineering-plugin/issues/384)) ([27b9831](https://github.com/ai-dvps/compound-engineering-plugin/commit/27b9831084d69c4c8cf13d0a45c901268420de59))
+* add project-standards-reviewer as always-on ce:review persona ([#402](https://github.com/ai-dvps/compound-engineering-plugin/issues/402)) ([b30288c](https://github.com/ai-dvps/compound-engineering-plugin/commit/b30288c44e500013afe30b34f744af57cae117db))
+* **ce-work:** add Codex delegation mode ([#328](https://github.com/ai-dvps/compound-engineering-plugin/issues/328)) ([341c379](https://github.com/ai-dvps/compound-engineering-plugin/commit/341c37916861c8bf413244de72f83b93b506575f))
+* **document-review:** smarter autofix, batch-confirm, and error/omission classification ([#401](https://github.com/ai-dvps/compound-engineering-plugin/issues/401)) ([0863cfa](https://github.com/ai-dvps/compound-engineering-plugin/commit/0863cfa4cbebcd121b0757abf374e5095d42f989))
+* improve `feature-video` skill with GitHub native video upload ([#344](https://github.com/ai-dvps/compound-engineering-plugin/issues/344)) ([4aa50e1](https://github.com/ai-dvps/compound-engineering-plugin/commit/4aa50e1bada07e90f36282accb3cd81134e706cd))
+* improve `resolve-pr-feedback` skill ([#379](https://github.com/ai-dvps/compound-engineering-plugin/issues/379)) ([2ba4f3f](https://github.com/ai-dvps/compound-engineering-plugin/commit/2ba4f3fd58d4e57dfc6c314c2992c18ba1fb164b))
+* improve commit-push-pr skill with net-result focus and badging ([#380](https://github.com/ai-dvps/compound-engineering-plugin/issues/380)) ([efa798c](https://github.com/ai-dvps/compound-engineering-plugin/commit/efa798c52cb9d62e9ef32283227a8df68278ff3a))
+* integrate orphaned stack-specific reviewers into ce:review ([#375](https://github.com/ai-dvps/compound-engineering-plugin/issues/375)) ([ce9016f](https://github.com/ai-dvps/compound-engineering-plugin/commit/ce9016fac5fde9a52753cf94a4903088f05aeece))
+* minimal config for conductor support ([#373](https://github.com/ai-dvps/compound-engineering-plugin/issues/373)) ([aad31ad](https://github.com/ai-dvps/compound-engineering-plugin/commit/aad31adcd3d528581e8b00e78943b21fbe2c47e8))
+* optimize `ce:compound` speed and effectiveness ([#370](https://github.com/ai-dvps/compound-engineering-plugin/issues/370)) ([4e3af07](https://github.com/ai-dvps/compound-engineering-plugin/commit/4e3af079623ae678b9a79fab5d1726d78f242ec2))
+* promote `ce:review-beta` to stable `ce:review` ([#371](https://github.com/ai-dvps/compound-engineering-plugin/issues/371)) ([7c5ff44](https://github.com/ai-dvps/compound-engineering-plugin/commit/7c5ff445e3065fd13e00bcd57041f6c35b36f90b))
+* promote ce:plan-beta and deepen-plan-beta to stable ([#355](https://github.com/ai-dvps/compound-engineering-plugin/issues/355)) ([169996a](https://github.com/ai-dvps/compound-engineering-plugin/commit/169996a75e98a29db9e07b87b0911cc80270f732))
+* rationalize todo skill names and optimize skills ([#368](https://github.com/ai-dvps/compound-engineering-plugin/issues/368)) ([2612ed6](https://github.com/ai-dvps/compound-engineering-plugin/commit/2612ed6b3d86364c74dc024e4ce35dde63fefbf6))
+* redesign `document-review` skill with persona-based review ([#359](https://github.com/ai-dvps/compound-engineering-plugin/issues/359)) ([18d22af](https://github.com/ai-dvps/compound-engineering-plugin/commit/18d22afde2ae08a50c94efe7493775bc97d9a45a))
+* replace manual review agent config with ce:review delegation ([#381](https://github.com/ai-dvps/compound-engineering-plugin/issues/381)) ([fed9fd6](https://github.com/ai-dvps/compound-engineering-plugin/commit/fed9fd68db283c64ec11293f88a8ad7a6373e2fe))
+* rewrite `frontend-design` skill with layered architecture and visual verification ([#343](https://github.com/ai-dvps/compound-engineering-plugin/issues/343)) ([423e692](https://github.com/ai-dvps/compound-engineering-plugin/commit/423e69272619e9e3c14750f5219cbf38684b6c96))
+
+
+### Bug Fixes
+
+* add default-branch guard to commit skills ([#386](https://github.com/ai-dvps/compound-engineering-plugin/issues/386)) ([31f07c0](https://github.com/ai-dvps/compound-engineering-plugin/commit/31f07c00473e9d8bd6d447cf04081c0a9631e34a))
+* add strict YAML validation for plugin frontmatter ([#399](https://github.com/ai-dvps/compound-engineering-plugin/issues/399)) ([0877b69](https://github.com/ai-dvps/compound-engineering-plugin/commit/0877b693ced341cec699ea959dc39f8bd78f33ef))
+* consolidate compound-docs into ce-compound skill ([#390](https://github.com/ai-dvps/compound-engineering-plugin/issues/390)) ([daddb7d](https://github.com/ai-dvps/compound-engineering-plugin/commit/daddb7d72f280a3bd9645c54d091844c198a324d))
+* consolidate local dev README and fix shell aliases ([#396](https://github.com/ai-dvps/compound-engineering-plugin/issues/396)) ([1bd63c2](https://github.com/ai-dvps/compound-engineering-plugin/commit/1bd63c2c8931b63bcafe960ea6353372ea85512a))
+* document SwiftUI Text link tap limitation in test-xcode skill ([#400](https://github.com/ai-dvps/compound-engineering-plugin/issues/400)) ([6ddaec3](https://github.com/ai-dvps/compound-engineering-plugin/commit/6ddaec3b6ed5b6a91aeaddadff3960714ef10dc1))
+* guard CONTEXTUAL_RISK_FLAGS lookup against prototype pollution ([#377](https://github.com/ai-dvps/compound-engineering-plugin/issues/377)) ([8ebc77b](https://github.com/ai-dvps/compound-engineering-plugin/commit/8ebc77b8e6c71e5bef40fcded9131c4457a387d7))
+* improve agent-native-reviewer with triage, prioritization, and stack-aware search ([#387](https://github.com/ai-dvps/compound-engineering-plugin/issues/387)) ([e792166](https://github.com/ai-dvps/compound-engineering-plugin/commit/e7921660ad42db8e9af56ec36f36ce8d1af13238))
+* one-step codex installs by preferring bundled plugins ([#383](https://github.com/ai-dvps/compound-engineering-plugin/issues/383)) ([f819e43](https://github.com/ai-dvps/compound-engineering-plugin/commit/f819e435a54f5d7df558df5a6bee1e616a5da837))
+* prevent orphaned opening paragraphs in PR descriptions ([#393](https://github.com/ai-dvps/compound-engineering-plugin/issues/393)) ([4b44a94](https://github.com/ai-dvps/compound-engineering-plugin/commit/4b44a94e23c8621771b8813caebce78060a61611))
+* quote frontend-design skill description ([#353](https://github.com/ai-dvps/compound-engineering-plugin/issues/353)) ([86342db](https://github.com/ai-dvps/compound-engineering-plugin/commit/86342db36c0d09b65afe11241e095dda2ad2cdb0))
+* replace broken markdown link refs in skills ([#392](https://github.com/ai-dvps/compound-engineering-plugin/issues/392)) ([506ad01](https://github.com/ai-dvps/compound-engineering-plugin/commit/506ad01b4f056b0d8d0d440bfb7821f050aba156))
+* sanitize colons in skill/agent names for Windows path compatibility ([#398](https://github.com/ai-dvps/compound-engineering-plugin/issues/398)) ([b25480a](https://github.com/ai-dvps/compound-engineering-plugin/commit/b25480af9eb1e69efa2fe30a8e7048f4c6aaa53c))
+* scope commit-push-pr descriptions to full branch diff ([#385](https://github.com/ai-dvps/compound-engineering-plugin/issues/385)) ([355e739](https://github.com/ai-dvps/compound-engineering-plugin/commit/355e7392b21a28c8725f87a8f9c473a86543ce4a))
+
 ## [2.55.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v2.54.0...cli-v2.55.0) (2026-03-26)
 
 
