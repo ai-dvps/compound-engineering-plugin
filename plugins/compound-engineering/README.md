@@ -24,7 +24,12 @@ The primary entry points for engineering work, invoked as slash commands:
 | `/ce:work` | Execute work items systematically |
 | `/ce:compound` | Document solved problems to compound team knowledge |
 | `/ce:compound-refresh` | Refresh stale or drifting learnings and decide whether to keep, update, replace, or archive them |
+### Research & Context
+
+| Skill | Description |
+|-------|-------------|
 | `/ce-sessions` | Ask questions about session history across Claude Code, Codex, and Cursor |
+| `/ce-slack-research` | Search Slack for interpreted organizational context -- decisions, constraints, and discussion arcs |
 
 ### Git Workflow
 
