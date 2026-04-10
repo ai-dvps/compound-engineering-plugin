@@ -22,6 +22,7 @@ The primary entry points for engineering work, invoked as slash commands:
 | `/ce:plan` | Create structured plans for any multi-step task -- software features, research workflows, events, study plans -- with automatic confidence checking |
 | `/ce:review` | Structured code review with tiered persona agents, confidence gating, and dedup pipeline |
 | `/ce:work` | Execute work items systematically |
+| `/ce-debug` | Systematically find root causes and fix bugs -- traces causal chains, forms testable hypotheses, and implements test-first fixes |
 | `/ce:compound` | Document solved problems to compound team knowledge |
 | `/ce:compound-refresh` | Refresh stale or drifting learnings and decide whether to keep, update, replace, or archive them |
 ### Research & Context
@@ -46,7 +47,6 @@ The primary entry points for engineering work, invoked as slash commands:
 |-------|-------------|
 | `/changelog` | Create engaging changelogs for recent merges |
 | `/ce-demo-reel` | Capture a visual demo reel (GIF demos, terminal recordings, screenshots) for PRs with project-type-aware tier selection |
-| `/reproduce-bug` | Reproduce bugs using logs and console |
 | `/report-bug-ce` | Report a bug in the compound-engineering plugin |
 | `/resolve-pr-feedback` | Resolve PR review feedback in parallel |
 | `/sync` | Sync Claude Code config across machines |
