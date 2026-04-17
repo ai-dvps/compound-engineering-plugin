@@ -11,7 +11,7 @@ After installing, run `/ce-setup` in any project. It diagnoses your environment,
 | Component | Count |
 |-----------|-------|
 | Agents | 50+ |
-| Skills | 41+ |
+| Skills | 42+ |
 
 ## Skills
 
@@ -44,9 +44,10 @@ For `/ce-optimize`, see [`skills/ce-optimize/README.md`](./skills/ce-optimize/RE
 
 | Skill | Description |
 |-------|-------------|
+| `ce-pr-description` | Write or regenerate a value-first PR title and body from the current branch or a specified PR; used directly or by other skills |
 | `git-clean-gone-branches` | Clean up local branches whose remote tracking branch is gone |
 | `git-commit` | Create a git commit with a value-communicating message |
-| `git-commit-push-pr` | Commit, push, and open a PR with an adaptive description; also update an existing PR description |
+| `git-commit-push-pr` | Commit, push, and open a PR with an adaptive description; also update an existing PR description (delegates title/body generation to `ce-pr-description`) |
 | `git-worktree` | Manage Git worktrees for parallel development |
 
 ### Workflow Utilities
@@ -80,7 +81,6 @@ For `/ce-optimize`, see [`skills/ce-optimize/README.md`](./skills/ce-optimize/RE
 
 | Skill | Description |
 |-------|-------------|
-| `claude-permissions-optimizer` | Optimize Claude Code permissions from session history |
 | `document-review` | Review documents using parallel persona agents for role-specific feedback |
 
 ### Content & Collaboration
@@ -101,6 +101,7 @@ For `/ce-optimize`, see [`skills/ce-optimize/README.md`](./skills/ce-optimize/RE
 
 | Skill | Description |
 |-------|-------------|
+| `/ce:polish-beta` | Human-in-the-loop polish phase after /ce:review — verifies review + CI, starts a dev server from `.claude/launch.json`, generates a testable checklist, and dispatches polish sub-agents for fixes. Emits stacked-PR seeds for oversized work |
 | `/lfg` | Full autonomous engineering workflow |
 
 ## Agents
