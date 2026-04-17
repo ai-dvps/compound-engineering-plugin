@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.0.0](https://github.com/ai-dvps/compound-engineering-plugin/compare/cli-v2.66.1...cli-v3.0.0) (2026-04-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **claude-permissions-optimizer:** remove skill ([#578](https://github.com/ai-dvps/compound-engineering-plugin/issues/578))
+
+### Features
+
+* **ce-demo-reel:** add demo reel skill with Python capture pipeline ([#541](https://github.com/ai-dvps/compound-engineering-plugin/issues/541)) ([b979143](https://github.com/ai-dvps/compound-engineering-plugin/commit/b979143ad0460a985dd224e7f1858416d79551fb))
+* **ce-polish-beta:** human-in-the-loop polish phase between /ce:review and merge ([#568](https://github.com/ai-dvps/compound-engineering-plugin/issues/568)) ([070092d](https://github.com/ai-dvps/compound-engineering-plugin/commit/070092d997bcc3306016e9258150d3071f017ef8))
+* **ce-setup:** unified setup skill with dependency management and config bootstrapping ([#345](https://github.com/ai-dvps/compound-engineering-plugin/issues/345)) ([354dbb7](https://github.com/ai-dvps/compound-engineering-plugin/commit/354dbb75828f0152f4cbbb3b50ce4511fa6710c7))
+* **ce-update:** add plugin version check skill and ce_platforms filtering ([#532](https://github.com/ai-dvps/compound-engineering-plugin/issues/532)) ([d37f0ed](https://github.com/ai-dvps/compound-engineering-plugin/commit/d37f0ed16f94aaec2a7b435a0aaa018de5631ed3))
+* **ce-work-beta:** add beta Codex delegation mode ([#476](https://github.com/ai-dvps/compound-engineering-plugin/issues/476)) ([31b0686](https://github.com/ai-dvps/compound-engineering-plugin/commit/31b0686c2e88808381560314f10ce276c86e11e2))
+* **ce-work:** reduce token usage by extracting late-sequence references ([#540](https://github.com/ai-dvps/compound-engineering-plugin/issues/540)) ([bb59547](https://github.com/ai-dvps/compound-engineering-plugin/commit/bb59547a2efdd4e7213c149f51abd9c9a17016dd))
+* **session-historian:** cross-platform session history agent and /ce-sessions skill ([#534](https://github.com/ai-dvps/compound-engineering-plugin/issues/534)) ([3208ec7](https://github.com/ai-dvps/compound-engineering-plugin/commit/3208ec71f8f2209abc76baf97e3967406755317d))
+
+
+### Bug Fixes
+
+* **ce-plan, ce-brainstorm:** reliable interactive handoff menus ([#575](https://github.com/ai-dvps/compound-engineering-plugin/issues/575)) ([3d96c0f](https://github.com/ai-dvps/compound-engineering-plugin/commit/3d96c0f074faf56fcdc835a0332e0f475dc8425f))
+* **converters:** preserve Codex agent sidecar scripts ([#563](https://github.com/ai-dvps/compound-engineering-plugin/issues/563)) ([ee8e402](https://github.com/ai-dvps/compound-engineering-plugin/commit/ee8e4028972252620f0dbfdbe1240204d22e6ea1))
+* **converters:** preserve Codex config on no-MCP install ([#564](https://github.com/ai-dvps/compound-engineering-plugin/issues/564)) ([ed778e6](https://github.com/ai-dvps/compound-engineering-plugin/commit/ed778e62f1e0e8621df94e5d461b20833cff33e2))
+* **openclaw:** use sync plugin registration ([#498](https://github.com/ai-dvps/compound-engineering-plugin/issues/498)) ([2c05c43](https://github.com/ai-dvps/compound-engineering-plugin/commit/2c05c43dc8b66ae37501e42a9747c07d82002185))
+
+
+### Miscellaneous Chores
+
+* **claude-permissions-optimizer:** remove skill ([#578](https://github.com/ai-dvps/compound-engineering-plugin/issues/578)) ([1995e3d](https://github.com/ai-dvps/compound-engineering-plugin/commit/1995e3d7907864130e5c1ce9cda2e531d81659cf))
+
 ## [2.66.1](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v2.66.0...cli-v2.66.1) (2026-04-16)
 
 

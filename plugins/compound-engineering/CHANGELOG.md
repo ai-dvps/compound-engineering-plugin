@@ -9,6 +9,57 @@ All notable changes to the compound-engineering plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0](https://github.com/ai-dvps/compound-engineering-plugin/compare/compound-engineering-v2.66.1...compound-engineering-v3.0.0) (2026-04-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **claude-permissions-optimizer:** remove skill ([#578](https://github.com/ai-dvps/compound-engineering-plugin/issues/578))
+
+### Features
+
+* **ce-debug:** add systematic debugging skill ([#543](https://github.com/ai-dvps/compound-engineering-plugin/issues/543)) ([e38223a](https://github.com/ai-dvps/compound-engineering-plugin/commit/e38223ae91921ebacabd10ff7cd1105ba3c10b25))
+* **ce-demo-reel:** add demo reel skill with Python capture pipeline ([#541](https://github.com/ai-dvps/compound-engineering-plugin/issues/541)) ([b979143](https://github.com/ai-dvps/compound-engineering-plugin/commit/b979143ad0460a985dd224e7f1858416d79551fb))
+* **ce-optimize:** Auto-research loop for tuning system prompts / vector clustering / evaluating different code solution / etc ([#446](https://github.com/ai-dvps/compound-engineering-plugin/issues/446)) ([8f20aa0](https://github.com/ai-dvps/compound-engineering-plugin/commit/8f20aa0406a7cda4ff11da45b971e38681650678))
+* **ce-plan,ce-brainstorm:** universal planning and brainstorming for non-software tasks ([#519](https://github.com/ai-dvps/compound-engineering-plugin/issues/519)) ([320a045](https://github.com/ai-dvps/compound-engineering-plugin/commit/320a04524142830a40a44bd72c4bf5d30931221c))
+* **ce-plan:** add output structure and scope sub-categorization ([#542](https://github.com/ai-dvps/compound-engineering-plugin/issues/542)) ([f3cc754](https://github.com/ai-dvps/compound-engineering-plugin/commit/f3cc7545e5eca0c3774b2803fa5515ff98a8fc1e))
+* **ce-polish-beta:** human-in-the-loop polish phase between /ce:review and merge ([#568](https://github.com/ai-dvps/compound-engineering-plugin/issues/568)) ([070092d](https://github.com/ai-dvps/compound-engineering-plugin/commit/070092d997bcc3306016e9258150d3071f017ef8))
+* **ce-pr-description:** focused skill for PR description generation ([#561](https://github.com/ai-dvps/compound-engineering-plugin/issues/561)) ([8ec6d33](https://github.com/ai-dvps/compound-engineering-plugin/commit/8ec6d339fee38cf4306e6586f726486cbae713b0))
+* **ce-review:** add compact returns to reduce orchestrator context during merge ([#535](https://github.com/ai-dvps/compound-engineering-plugin/issues/535)) ([a5ce094](https://github.com/ai-dvps/compound-engineering-plugin/commit/a5ce09477291766ffc03e0ae4e9e1e0f80560c2b))
+* **ce-setup:** unified setup skill with dependency management and config bootstrapping ([#345](https://github.com/ai-dvps/compound-engineering-plugin/issues/345)) ([354dbb7](https://github.com/ai-dvps/compound-engineering-plugin/commit/354dbb75828f0152f4cbbb3b50ce4511fa6710c7))
+* **ce-update:** add plugin version check skill and ce_platforms filtering ([#532](https://github.com/ai-dvps/compound-engineering-plugin/issues/532)) ([d37f0ed](https://github.com/ai-dvps/compound-engineering-plugin/commit/d37f0ed16f94aaec2a7b435a0aaa018de5631ed3))
+* **ce-work-beta:** add beta Codex delegation mode ([#476](https://github.com/ai-dvps/compound-engineering-plugin/issues/476)) ([31b0686](https://github.com/ai-dvps/compound-engineering-plugin/commit/31b0686c2e88808381560314f10ce276c86e11e2))
+* **ce-work:** reduce token usage by extracting late-sequence references ([#540](https://github.com/ai-dvps/compound-engineering-plugin/issues/540)) ([bb59547](https://github.com/ai-dvps/compound-engineering-plugin/commit/bb59547a2efdd4e7213c149f51abd9c9a17016dd))
+* **session-historian:** cross-platform session history agent and /ce-sessions skill ([#534](https://github.com/ai-dvps/compound-engineering-plugin/issues/534)) ([3208ec7](https://github.com/ai-dvps/compound-engineering-plugin/commit/3208ec71f8f2209abc76baf97e3967406755317d))
+* **slack-researcher:** add /ce-slack-research skill and improve agent ([#538](https://github.com/ai-dvps/compound-engineering-plugin/issues/538)) ([042ee73](https://github.com/ai-dvps/compound-engineering-plugin/commit/042ee732398d1f41b9b91953569a54e40303332d))
+* **slack-researcher:** add Slack organizational context research agent ([#495](https://github.com/ai-dvps/compound-engineering-plugin/issues/495)) ([b3960ec](https://github.com/ai-dvps/compound-engineering-plugin/commit/b3960ec64b212d1c8f3885370762e0f124354c28))
+
+
+### Bug Fixes
+
+* **ce-compound, ce-compound-refresh:** use injected memory block ([#569](https://github.com/ai-dvps/compound-engineering-plugin/issues/569)) ([0b3d4b2](https://github.com/ai-dvps/compound-engineering-plugin/commit/0b3d4b283c8e3165931816607cf86017d8273bbe))
+* **ce-compound:** explicit mode prompt and lightweight rename ([#528](https://github.com/ai-dvps/compound-engineering-plugin/issues/528)) ([0ae91dc](https://github.com/ai-dvps/compound-engineering-plugin/commit/0ae91dcc298721e5b2c4ab6d1fc6f76a13b6f67c))
+* **ce-demo-reel:** two-stage upload for reviewable approval gate ([#546](https://github.com/ai-dvps/compound-engineering-plugin/issues/546)) ([5454053](https://github.com/ai-dvps/compound-engineering-plugin/commit/545405380dba78bc0efd35f7675e8c27d99bf8c9))
+* **ce-plan, ce-brainstorm:** reliable interactive handoff menus ([#575](https://github.com/ai-dvps/compound-engineering-plugin/issues/575)) ([3d96c0f](https://github.com/ai-dvps/compound-engineering-plugin/commit/3d96c0f074faf56fcdc835a0332e0f475dc8425f))
+* **ce-plan:** close escape hatches that let the skill abandon direct invocations ([#554](https://github.com/ai-dvps/compound-engineering-plugin/issues/554)) ([e4d5f24](https://github.com/ai-dvps/compound-engineering-plugin/commit/e4d5f241bd3945784905a32d7fb7ef9305c621e8))
+* **ce-review:** add recursion guard to reviewer subagent template ([#527](https://github.com/ai-dvps/compound-engineering-plugin/issues/527)) ([bafe9f0](https://github.com/ai-dvps/compound-engineering-plugin/commit/bafe9f0968054c78db23e7e7f4d5dbc2ddb4a450))
+* **ce-review:** always fetch base branch to prevent stale merge-base ([#544](https://github.com/ai-dvps/compound-engineering-plugin/issues/544)) ([4e0ed2c](https://github.com/ai-dvps/compound-engineering-plugin/commit/4e0ed2cc8ddadf6d5504210e1210728e6f7cc9aa))
+* **ce-update:** use correct marketplace name in cache path ([#566](https://github.com/ai-dvps/compound-engineering-plugin/issues/566)) ([d8305dd](https://github.com/ai-dvps/compound-engineering-plugin/commit/d8305dd159ebe9d89df9c4af5a7d0fb2b128801b))
+* **ce-work,ce-work-beta:** add safety checks for parallel subagent dispatch ([#557](https://github.com/ai-dvps/compound-engineering-plugin/issues/557)) ([5cae4d1](https://github.com/ai-dvps/compound-engineering-plugin/commit/5cae4d1dab212d7e438f0b081986e987c860d4d5))
+* **cleanup:** remove rclone, agent-browser, lint, and bug-reproduction-validator ([#545](https://github.com/ai-dvps/compound-engineering-plugin/issues/545)) ([1372b2c](https://github.com/ai-dvps/compound-engineering-plugin/commit/1372b2cffd06989dee8eb9df26d7c94ac30f032a))
+* **document-review, review:** restrict reviewer agents to read-only tools ([#553](https://github.com/ai-dvps/compound-engineering-plugin/issues/553)) ([e45c435](https://github.com/ai-dvps/compound-engineering-plugin/commit/e45c435b996f7c0bf5ae0e23c0ab95b3fbd9204c))
+* **document-review:** add recursion guard to reviewer subagent template ([#523](https://github.com/ai-dvps/compound-engineering-plugin/issues/523)) ([36d8119](https://github.com/ai-dvps/compound-engineering-plugin/commit/36d811916637b3436aafd548319e077b6248bae3))
+* **document-review:** widen autofix classification beyond trivial fixes ([#524](https://github.com/ai-dvps/compound-engineering-plugin/issues/524)) ([9a82222](https://github.com/ai-dvps/compound-engineering-plugin/commit/9a82222aba25d6e64355053fca5954f3dfbd8285))
+* **git-commit-push-pr:** remove harness slug from badge table ([#539](https://github.com/ai-dvps/compound-engineering-plugin/issues/539)) ([044a035](https://github.com/ai-dvps/compound-engineering-plugin/commit/044a035e77298c4b8d2152ac2cba36fc00f5b99a))
+* **git-commit-push-pr:** rewrite descriptions as net result, not changelog ([#558](https://github.com/ai-dvps/compound-engineering-plugin/issues/558)) ([a559903](https://github.com/ai-dvps/compound-engineering-plugin/commit/a55990387d48fa7af598880746ff862cc8f10acd))
+* **review,work:** omit mode parameter in subagent dispatch to respect user permissions ([#522](https://github.com/ai-dvps/compound-engineering-plugin/issues/522)) ([949bdef](https://github.com/ai-dvps/compound-engineering-plugin/commit/949bdef909ea71e9c5b885e31c028809f0f25017))
+* **slack-researcher:** make Slack research opt-in, surface workspace identity ([#521](https://github.com/ai-dvps/compound-engineering-plugin/issues/521)) ([6f9069d](https://github.com/ai-dvps/compound-engineering-plugin/commit/6f9069df7ac3551677f8f7a1cd7ad51946f88847))
+
+
+### Miscellaneous Chores
+
+* **claude-permissions-optimizer:** remove skill ([#578](https://github.com/ai-dvps/compound-engineering-plugin/issues/578)) ([1995e3d](https://github.com/ai-dvps/compound-engineering-plugin/commit/1995e3d7907864130e5c1ce9cda2e531d81659cf))
+
 ## [2.66.1](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v2.66.0...compound-engineering-v2.66.1) (2026-04-16)
 
 
