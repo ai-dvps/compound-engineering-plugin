@@ -7,8 +7,9 @@ This file is loaded when ce:plan detects a non-software task (Phase 0.1b). It re
 The detection stub in SKILL.md routes here for anything that isn't clearly software. Verify the classification is correct before proceeding:
 
 - **Is this actually a software task?** The key distinction is task-type, not topic-domain. A study guide about Rust is non-software (producing educational content). A Rust library refactor is software (modifying code). If this is actually software, return to Phase 0.2 in the main SKILL.md.
-- **Is this a quick-help request, not a planning task?** Error messages, factual questions, and single-step tasks don't need a plan. Respond directly and exit. Examples: "zsh: command not found: brew", "what's the capital of France."
 - **Pipeline mode?** If invoked from LFG, SLFG, or any `disable-model-invocation` context: output "This is a non-software task. The LFG/SLFG pipeline requires ce:work, which only supports software tasks. Use `/ce:plan` directly for non-software planning." and stop.
+
+Once past these checks, commit to producing a plan. Do not exit because the task looks like a "lookup" or "research question" — the user invoked `ce:plan` because they want a structured output.
 
 ---
 
@@ -32,7 +33,7 @@ When research is recommended, do it — don't just offer. Stale recommendations 
 
 **Research decomposition pattern:**
 1. Identify 2-5 independent research questions based on the task. Good questions target facts the model is least confident about: current prices, hours, availability, recent changes, seasonal specifics.
-2. Dispatch parallel web searches (one per question). Keep queries broad at first, then narrow based on findings.
+2. Dispatch parallel research. Prefer user-named surfaces first per Core Principle 8 in SKILL.md; fall back to web search for questions those surfaces don't cover.
 3. Collate findings into a brief research summary before proceeding to planning.
 
 Example for "plan a date night in Seattle this Saturday":

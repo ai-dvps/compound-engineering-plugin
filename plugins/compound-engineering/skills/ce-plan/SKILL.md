@@ -39,6 +39,7 @@ If the input is present but unclear or underspecified, do not abandon — ask on
 5. **Separate planning from execution discovery** - Resolve planning-time questions here. Explicitly defer execution-time unknowns to implementation.
 6. **Keep the plan portable** - The plan should work as a living document, review artifact, or issue body without embedding tool-specific executor instructions.
 7. **Carry execution posture lightly when it matters** - If the request, origin document, or repo context clearly implies test-first, characterization-first, or another non-default execution posture, reflect that in the plan as a lightweight signal. Do not turn the plan into step-by-step execution choreography.
+8. **Honor user-named resources** - When the user names a specific resource — a CLI, MCP server, URL, file, doc link, or prior artifact — treat it as authoritative input, not a suggestion. Discover it if unknown (`command -v`, fetch, read) before assuming it's unavailable. Use it in place of generic alternatives. If it fails or doesn't exist, say so explicitly rather than silently substituting.
 
 ## Plan Quality Bar
 
@@ -81,11 +82,9 @@ If the plan already has a `deepened: YYYY-MM-DD` frontmatter field and there is 
 
 If the task involves building, modifying, or architecting software (references code, repos, APIs, databases, or asks to build/modify/deploy), continue to Phase 0.2.
 
-If the task is about a non-software domain and describes a multi-step goal worth planning, read `references/universal-planning.md` and follow that workflow instead. Skip all subsequent phases.
+Otherwise, read `references/universal-planning.md` and follow that workflow instead. Skip all subsequent phases. Named tools or source links don't change this routing — they're inputs, handled per Core Principle 8.
 
-If genuinely ambiguous (e.g., "plan a migration" with no other context), ask the user before routing.
-
-For everything else (quick questions, error messages, factual lookups) **only when auto-selected**, respond directly without any planning workflow. When directly invoked by the user, treat the input as a planning request — ask clarifying questions if needed, but do not exit the workflow.
+If the domain is genuinely ambiguous (e.g., "plan a migration" with no other context), ask the user before routing.
 
 #### 0.2 Find Upstream Requirements Document
 
