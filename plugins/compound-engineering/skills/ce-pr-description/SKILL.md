@@ -1,16 +1,16 @@
 ---
 name: ce-pr-description
-description: "Write or regenerate a value-first pull-request description (title + body) for the current branch's commits or for a specified PR. Use when the user says 'write a PR description', 'refresh the PR description', 'regenerate the PR body', 'rewrite this PR', 'freshen the PR', 'update the PR description', 'draft a PR body for this diff', 'describe this PR properly', 'generate the PR title', or pastes a GitHub PR URL / #NN / number. Also used internally by git-commit-push-pr (single-PR flow) and ce-pr-stack (per-layer stack descriptions) so all callers share one writing voice. Input is a natural-language prompt. A PR reference (a full GitHub PR URL, `pr:561`, `#561`, or a bare number alone) picks a specific PR; anything else is treated as optional steering for the default 'describe my current branch' mode. Returns structured {title, body} for the caller to apply via gh pr edit or gh pr create — this skill never edits the PR itself and never prompts for confirmation."
+description: "Write or regenerate a value-first pull-request description (title + body) for the current branch's commits or for a specified PR. Use when the user says 'write a PR description', 'refresh the PR description', 'regenerate the PR body', 'rewrite this PR', 'freshen the PR', 'update the PR description', 'draft a PR body for this diff', 'describe this PR properly', 'generate the PR title', or pastes a GitHub PR URL / #NN / number. Also used internally by ce-commit-push-pr (single-PR flow) and ce-pr-stack (per-layer stack descriptions) so all callers share one writing voice. Input is a natural-language prompt. A PR reference (a full GitHub PR URL, `pr:561`, `#561`, or a bare number alone) picks a specific PR; anything else is treated as optional steering for the default 'describe my current branch' mode. Returns structured {title, body_file} (body written to an OS temp file) for the caller to apply via gh pr edit or gh pr create — this skill never edits the PR itself and never prompts for confirmation."
 argument-hint: "[PR ref e.g. pr:561 | #561 | URL] [free-text steering]"
 ---
 
 # CE PR Description
 
-Generate a conventional-commit-style title and a value-first body describing a pull request's work. Returns structured `{title, body}` for the caller to apply — this skill never invokes `gh pr edit` or `gh pr create`, and never prompts for interactive confirmation.
+Generate a conventional-commit-style title and a value-first body describing a pull request's work. Returns structured `{title, body_file}` for the caller to apply — this skill never invokes `gh pr edit` or `gh pr create`, and never prompts for interactive confirmation.
 
-Why a separate skill: several callers need the same writing logic without the single-PR interactive scaffolding that lives in `git-commit-push-pr`. `ce-pr-stack`'s splitting workflow runs this once per layer as a batch; `git-commit-push-pr` runs it inside its full-flow and refresh-mode paths. Extracting keeps one source of truth for the writing principles.
+Why a separate skill: several callers need the same writing logic without the single-PR interactive scaffolding that lives in `ce-commit-push-pr`. `ce-pr-stack`'s splitting workflow runs this once per layer as a batch; `ce-commit-push-pr` runs it inside its full-flow and refresh-mode paths. Extracting keeps one source of truth for the writing principles.
 
-**Naming rationale:** `ce-pr-description`, not `git-pr-description`. Stacking and PR creation are GitHub features; the "PR" in the name refers to the GitHub artifact. Using the `ce-` prefix matches the future convention for plugin skills; sibling `git-*` skills will rename to `ce-*` later, and this skill starts there directly.
+**Naming rationale:** `ce-pr-description`, not `git-pr-description`. Stacking and PR creation are GitHub features; the "PR" in the name refers to the GitHub artifact. Using the `ce-` prefix matches the plugin naming convention for all skills.
 
 ---
 
@@ -32,7 +32,7 @@ No specific grammar is required — read the argument as natural language and id
 
 Steering text is always optional. If present, incorporate it alongside the diff-derived narrative; do not let it override the value-first principles or fabricate content unsupported by the diff.
 
-**Optional `base:<ref>` override (current-branch mode only).** When a caller already knows the intended base branch (e.g., `git-commit-push-pr` has detected `origin/develop` or `origin/release/2026-04` as the target), it can pass `base:<ref>` to pin the base explicitly. The ref must resolve locally. This overrides auto-detection for current-branch mode; PR mode ignores it (PRs already define their own base via `baseRefName`). Most invocations don't need this — auto-detection (existing PR's `baseRefName` → `origin/HEAD`) covers the common case.
+**Optional `base:<ref>` override (current-branch mode only).** When a caller already knows the intended base branch (e.g., `ce-commit-push-pr` has detected `origin/develop` or `origin/release/2026-04` as the target), it can pass `base:<ref>` to pin the base explicitly. The ref must resolve locally. This overrides auto-detection for current-branch mode; PR mode ignores it (PRs already define their own base via `baseRefName`). Most invocations don't need this — auto-detection (existing PR's `baseRefName` → `origin/HEAD`) covers the common case.
 
 **Examples**:
 
@@ -49,9 +49,9 @@ Steering text is always optional. If present, incorporate it alongside the diff-
 Return a structured result with two fields:
 
 - **`title`** -- conventional-commit format: `type: description` or `type(scope): description`. Under 72 characters. Choose `type` based on intent (feat/fix/refactor/docs/chore/perf/test), not file type. Pick the narrowest useful `scope` (skill or agent name, CLI area, or shared label); omit when no single label adds clarity.
-- **`body`** -- markdown following the writing principles below.
+- **`body_file`** -- absolute path to an OS temp file (created via `mktemp`) containing the body markdown that follows the writing principles below. Do not emit the body inline in the return.
 
-The caller decides whether to apply via `gh pr edit`, `gh pr create`, or discard. This skill does NOT call those commands itself.
+The caller decides whether to apply via `gh pr edit`, `gh pr create`, or discard, reading the body from `body_file` (e.g., `--body "$(cat "$BODY_FILE")"`). This skill does NOT call those commands itself. No cleanup is required — `mktemp` files live in OS temp storage, which the OS reaps on its own schedule.
 
 ---
 
@@ -86,19 +86,19 @@ if [ -z "$CURRENT_BRANCH" ]; then
   exit 1
 fi
 
-# Priority: caller-supplied base: > existing PR's baseRefName > origin/HEAD
+# Priority: caller-supplied base: > existing PR's baseRefName > origin/HEAD > origin/main
 if [ -n "$CALLER_BASE" ]; then
   BASE_REF="$CALLER_BASE"
+elif EXISTING_PR_BASE=$(gh pr view --json baseRefName --jq '.baseRefName'); then
+  BASE_REF="origin/$EXISTING_PR_BASE"
+elif DEFAULT_HEAD=$(git rev-parse --abbrev-ref origin/HEAD); then
+  BASE_REF="$DEFAULT_HEAD"
 else
-  EXISTING_PR_BASE=$(gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null)
-  if [ -n "$EXISTING_PR_BASE" ]; then
-    BASE_REF="origin/$EXISTING_PR_BASE"
-  else
-    BASE_REF=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)
-    BASE_REF="${BASE_REF:-origin/main}"
-  fi
+  BASE_REF="origin/main"
 fi
 ```
+
+Both `gh pr view` and `git rev-parse --abbrev-ref origin/HEAD` exit non-zero on the "not configured" paths; the elif chain drives off exit code rather than suppressed stderr. Stderr from a missing PR or unresolved `origin/HEAD` is informational and acceptable.
 
 If `$BASE_REF` does not resolve locally (`git rev-parse --verify "$BASE_REF"` fails), the caller (or the user) needs to fetch it first. Exit gracefully with `"Base ref $BASE_REF does not resolve locally. Fetch it before invoking the skill."` — do not attempt recovery.
 
@@ -122,7 +122,7 @@ gh pr view <pr-ref> --json number,state,title,body,baseRefName,baseRefOid,headRe
 
 Key JSON fields: `headRefOid` (PR head SHA — prefer over indexing into `commits`), `baseRefOid` (base-branch SHA), `headRepository` + `headRepositoryOwner` (PR source repo), `isCrossRepository`. There is no `baseRepository` field — the base repo is the one queried by `gh pr view` itself.
 
-If the returned `state` is not `OPEN`, report `"PR <number> is <state> (not open); cannot regenerate description"` and exit gracefully without output. Callers expecting `{title, body}` must handle this empty case.
+If the returned `state` is not `OPEN`, report `"PR <number> is <state> (not open); cannot regenerate description"` and exit gracefully without output. Callers expecting `{title, body_file}` must handle this empty case.
 
 **Determine whether the PR lives in the current working directory's repo** by parsing the URL's `<owner>/<repo>` path segments and comparing against `git remote get-url origin` (strip `.git` suffix; handle both `git@github.com:owner/repo` and `https://github.com/owner/repo` forms). If the URL repo matches `origin`'s repo, route to the local-git path (Case A). Otherwise route to the API-only path (Case B). Bare numbers and `#NN` forms implicitly target the current repo → Case A.
 
@@ -216,10 +216,10 @@ Assess size (files, diff volume) and complexity (design decisions, trade-offs, c
 | Small + simple (typo, config, dep bump) | 1-2 sentences, no headers. Under ~300 characters. |
 | Small + non-trivial (bugfix, behavioral change) | Short narrative, ~3-5 sentences. No headers unless two distinct concerns. |
 | Medium feature or refactor | Narrative frame (before/after/scope), then what changed and why. Call out design decisions. |
-| Large or architecturally significant | Full narrative: problem context, approach (and why), key decisions, migration/rollback if relevant. |
+| Large or architecturally significant | Narrative frame + up to 3-5 design-decision callouts + 1-2 sentence test summary + key docs links. Target ~100 lines, cap ~150. For PRs with many mechanisms, use a Summary-level table to list them; do NOT create an H3 subsection per mechanism. Reviewers scrutinize decisions, not inventories — the diff and spec files carry the detail. If you find yourself writing 10+ subsections, consolidate to a table. |
 | Performance improvement | Include before/after measurements if available. Markdown table works well. |
 
-When in doubt, shorter is better. Match description weight to change weight.
+When in doubt, shorter is better. Match description weight to change weight. Large PRs need MORE selectivity, not MORE content.
 
 ---
 
@@ -247,6 +247,8 @@ If the repo has documented style preferences in context, follow those. Otherwise
 - **Markdown tables for data**: Before/after comparisons, performance numbers, or option trade-offs communicate well as tables.
 - **No empty sections**: If a section doesn't apply, omit it. No "N/A" or "None."
 - **Test plan — only when non-obvious**: Include when testing requires edge cases the reviewer wouldn't think of, hard-to-verify behavior, or specific setup. Omit when "run the tests" is the only useful guidance. When the branch adds test files, name them with what they cover.
+- **No Commits section**: GitHub already shows the commit list in its own tab. A Commits section in the PR body duplicates that without adding context. Omit unless the commits need annotations explaining their ordering or shipping rationale.
+- **No Review / process section**: Do not include a section describing how the reviewer should review (checklists of things to look at, process bullets). Process doesn't help the reviewer evaluate code. Call out specific non-obvious things to scrutinize inline with the change that warrants it.
 
 ### Visual communication
 
@@ -344,21 +346,50 @@ Assemble the body in this order:
 
 ---
 
-## Step 9: Return `{title, body}`
+## Step 8b: Compression pass
 
-Return the composed title and body to the caller. Do not call `gh pr edit`, `gh pr create`, or any other mutating command. Do not ask the user to confirm. The caller owns apply.
+Before writing the body to the temp file, re-read the composed body and apply these cuts:
 
-Format the return as a clearly labeled block so the caller can extract cleanly:
+- If any body section restates content already in the `## Summary`, remove it. The Summary plus the diff should carry the reader.
+- If "Testing" or "Test plan" has more than 2 paragraphs, compress to bullets.
+- If a "Commits" section enumerates the commit log, remove it — GitHub shows it in its own tab.
+- If a "Review" or process-oriented section lists how to review, remove it. Move any truly non-obvious review hints inline with the relevant change.
+- If the body has 5+ H3 subsections that each describe one mechanism, consolidate them into a single table row per mechanism under one header. Reserve prose H3 callouts for 2-3 genuine design decisions.
+- If the body exceeds the sizing-table target by more than 30%, compress the longest non-Summary section by half.
+
+**Value-lead check.** Re-read the first sentence of the Summary. If it describes what was moved around, renamed, or added ("This PR introduces three-tier autofix..."), rewrite to lead with what's now possible or what was broken and is now fixed ("Document reviews previously produced 14+ findings requiring user judgment; this PR cuts that to 4-6.").
+
+Large PRs benefit from selectivity, not comprehensiveness.
+
+---
+
+## Step 9: Return `{title, body_file}`
+
+Write the composed body to an OS temp file, then return the title and the file path. Do not call `gh pr edit`, `gh pr create`, or any other mutating command. Do not ask the user to confirm — the caller owns apply.
+
+```bash
+BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__' && echo "$BODY_FILE"
+<the composed body markdown goes here, verbatim>
+__CE_PR_BODY_END__
+```
+
+The quoted sentinel `'__CE_PR_BODY_END__'` keeps `$VAR`, backticks, `${...}`, and any literal `EOF` inside the body from being expanded or clashing with the terminator. Keep `echo "$BODY_FILE"` chained with `&&` so a failed `mktemp` or write never yields a success exit status with a path to a missing file.
+
+Format the return as a clearly labeled block the caller can extract cleanly:
 
 ```
 === TITLE ===
 <title line>
 
-=== BODY ===
-<body markdown>
+=== BODY_FILE ===
+<absolute path to the mktemp body file>
 ```
 
-If Step 1 exited gracefully (closed/merged PR, invalid range, empty commit list), return no title or body — just the reason string.
+Do not emit the body markdown in the return block — the caller reads it from `BODY_FILE`.
+
+If Step 1 exited gracefully (closed/merged PR, invalid range, empty commit list), do not create a body file — just return the reason string.
+
+**The return block is a hand-off, not task completion.** When invoked by a parent skill (e.g., `ce-commit-push-pr`), emit the return block and then continue executing the parent's remaining steps (typically `gh pr create` or `gh pr edit` with the returned title and body file). Do not stop after the return block unless invoked directly by the user with no parent workflow.
 
 ---
 
