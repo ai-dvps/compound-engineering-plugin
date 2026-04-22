@@ -17,12 +17,12 @@ After installing, run `/ce-setup` in any project. It diagnoses your environment,
 
 ### Core Workflow
 
-The primary entry points for engineering work, invoked as slash commands:
+The primary entry points for engineering work are skills invoked with slash syntax:
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-ideate` | Discover high-impact project improvements through divergent ideation and adversarial filtering |
-| `/ce-brainstorm` | Explore requirements and approaches before planning |
+| `/ce-ideate` | Optional big-picture ideation: generate and critically evaluate grounded ideas, then route the strongest one into brainstorming |
+| `/ce-brainstorm` | Interactive Q&A to think through a feature or problem and write a right-sized requirements doc before planning |
 | `/ce-plan` | Create structured plans for any multi-step task -- software features, research workflows, events, study plans -- with automatic confidence checking |
 | `/ce-code-review` | Structured code review with tiered persona agents, confidence gating, and dedup pipeline |
 | `/ce-work` | Execute work items systematically |
@@ -55,26 +55,20 @@ For `/ce-optimize`, see [`skills/ce-optimize/README.md`](./skills/ce-optimize/RE
 | Skill | Description |
 |-------|-------------|
 | `/ce-demo-reel` | Capture a visual demo reel (GIF demos, terminal recordings, screenshots) for PRs with project-type-aware tier selection |
-| `/ce-changelog` | Create engaging changelogs for recent merges |
 | `/ce-report-bug` | Report a bug in the compound-engineering plugin |
 | `/ce-resolve-pr-feedback` | Resolve PR review feedback in parallel |
 | `/ce-test-browser` | Run browser tests on PR-affected pages |
 | `/ce-test-xcode` | Build and test iOS apps on simulator using XcodeBuildMCP |
-| `/ce-onboarding` | Generate `ONBOARDING.md` to help new contributors understand the codebase |
 | `/ce-setup` | Diagnose environment, install missing tools, and bootstrap project config |
 | `/ce-update` | Check compound-engineering plugin version and fix stale cache (Claude Code only) |
 | `/ce-release-notes` | Summarize recent compound-engineering plugin releases, or answer a question about a past release with a version citation |
-| `/ce-todo-resolve` | Resolve todos in parallel |
-| `/ce-todo-triage` | Triage and prioritize pending todos |
 
 ### Development Frameworks
 
 | Skill | Description |
 |-------|-------------|
 | `ce-agent-native-architecture` | Build AI agents using prompt-native architecture |
-| `ce-andrew-kane-gem-writer` | Write Ruby gems following Andrew Kane's patterns |
 | `ce-dhh-rails-style` | Write Ruby/Rails code in DHH's 37signals style |
-| `ce-dspy-ruby` | Build type-safe LLM applications with DSPy.rb |
 | `ce-frontend-design` | Create production-grade frontend interfaces |
 
 ### Review & Quality
@@ -87,9 +81,7 @@ For `/ce-optimize`, see [`skills/ce-optimize/README.md`](./skills/ce-optimize/RE
 
 | Skill | Description |
 |-------|-------------|
-| `ce-every-style-editor` | Review copy for Every's style guide compliance |
 | `ce-proof` | Create, edit, and share documents via Proof collaborative editor |
-| `ce-todo-create` | File-based todo tracking system |
 
 ### Automation & Tools
 
@@ -136,6 +128,7 @@ Agents are specialized subagents invoked by skills — you typically don't call 
 | `ce-schema-drift-detector` | Detect unrelated schema.rb changes in PRs |
 | `ce-security-reviewer` | Exploitable vulnerabilities with confidence calibration |
 | `ce-security-sentinel` | Security audits and vulnerability assessments |
+| `ce-swift-ios-reviewer` | Swift and iOS code review -- SwiftUI state, retain cycles, concurrency, Core Data threading, accessibility |
 | `ce-testing-reviewer` | Test coverage gaps, weak assertions |
 | `ce-project-standards-reviewer` | CLAUDE.md and AGENTS.md compliance |
 | `ce-adversarial-reviewer` | Construct failure scenarios to break implementations across component boundaries |
@@ -189,9 +182,7 @@ Agents are specialized subagents invoked by skills — you typically don't call 
 
 ## Installation
 
-```bash
-claude /plugin install compound-engineering
-```
+See the repo root [Install section](../../README.md#install) for current installation instructions across Claude Code, Codex, Cursor, Copilot, Droid, Qwen, and converter-backed targets.
 
 Then run `/ce-setup` to check your environment and install recommended tools.
 
