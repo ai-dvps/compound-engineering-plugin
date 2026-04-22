@@ -170,7 +170,10 @@ describe("ce-code-review contract", () => {
       "plugins/compound-engineering/skills/ce-code-review/references/findings-schema.json",
     )
     const schema = JSON.parse(rawSchema) as {
-      _meta: { confidence_thresholds: { suppress: string } }
+      _meta: {
+        confidence_thresholds: { suppress: string; report: string }
+        confidence_anchors: Record<string, string>
+      }
       properties: {
         findings: {
           items: {
@@ -178,6 +181,7 @@ describe("ce-code-review contract", () => {
               autofix_class: { enum: string[] }
               owner: { enum: string[] }
               requires_verification: { type: string }
+              confidence: { type: string; enum: number[] }
             }
             required: string[]
           }
@@ -201,8 +205,206 @@ describe("ce-code-review contract", () => {
       "release",
     ])
     expect(schema.properties.findings.items.properties.requires_verification.type).toBe("boolean")
-    expect(schema._meta.confidence_thresholds.suppress).toContain("0.60")
 
+    // Anchored confidence: integer enum, no floats
+    expect(schema.properties.findings.items.properties.confidence.type).toBe("integer")
+    expect(schema.properties.findings.items.properties.confidence.enum).toEqual([0, 25, 50, 75, 100])
+
+    // Threshold: anchor 75 (P0 escape at anchor 50)
+    expect(schema._meta.confidence_thresholds.suppress).toContain("anchor 75")
+    expect(schema._meta.confidence_thresholds.suppress).toContain("anchor 50")
+    expect(schema._meta.confidence_thresholds.suppress).toMatch(/P0/)
+
+    // Behavioral anchors documented for personas
+    expect(schema._meta.confidence_anchors).toBeDefined()
+    expect(schema._meta.confidence_anchors["0"]).toBeDefined()
+    expect(schema._meta.confidence_anchors["25"]).toBeDefined()
+    expect(schema._meta.confidence_anchors["50"]).toBeDefined()
+    expect(schema._meta.confidence_anchors["75"]).toBeDefined()
+    expect(schema._meta.confidence_anchors["100"]).toBeDefined()
+
+  })
+
+  test("subagent template carries verbatim 5-anchor rubric and lint-ignore suppression", async () => {
+    const template = await readRepoFile(
+      "plugins/compound-engineering/skills/ce-code-review/references/subagent-template.md",
+    )
+
+    // Anchored rubric: each anchor named with behavioral criterion
+    expect(template).toMatch(/`0`.*Not confident/)
+    expect(template).toMatch(/`25`.*Somewhat confident/)
+    expect(template).toMatch(/`50`.*Moderately confident/)
+    expect(template).toMatch(/`75`.*Highly confident/)
+    expect(template).toMatch(/`100`.*Absolutely certain/)
+
+    // Schema conformance hard constraints reject floats
+    expect(template).toContain("`0`, `25`, `50`, `75`, or `100`")
+    expect(template).toMatch(/0\.85.*validation failure/i)
+
+    // Lint-ignore rule in false-positive catalog
+    expect(template).toMatch(/lint.ignore|lint disable|eslint-disable/i)
+    expect(template).toMatch(/suppress unless the suppression itself violates/i)
+
+    // Advisory routing rule preserved
+    expect(template).toMatch(/Advisory observations.*route to advisory/i)
+
+    // Personas never produce anchors 0 or 25 (suppress silently)
+    expect(template).toMatch(/personas never produce/i)
+  })
+
+  test("Stage 5 synthesis uses anchor gate and one-anchor promotion", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+
+    // Confidence value constraint is integer enum
+    expect(content).toMatch(/confidence:\s*integer in \{0, 25, 50, 75, 100\}/)
+
+    // Confidence gate at anchor 75 with P0 exception at 50
+    expect(content).toMatch(/suppress remaining findings below anchor 75/i)
+    expect(content).toMatch(/P0 findings at anchor 50\+ survive/)
+
+    // Confidence gate runs AFTER dedup, promotion, and demotion so anchor-50 findings
+    // can be promoted by cross-reviewer agreement or rerouted to soft buckets first.
+    // This is a load-bearing ordering — if the gate runs early, promotion/demotion become unreachable.
+    expect(content).toMatch(/gate runs late deliberately/i)
+
+    // One-anchor promotion replaces +0.10 boost
+    expect(content).toMatch(/one anchor step.*50 -> 75.*75 -> 100/)
+    expect(content).not.toContain("boost the merged confidence by 0.10")
+
+    // Sort by anchor descending, not "confidence (descending)"
+    expect(content).toMatch(/anchor \(descending\)/)
+  })
+
+  test("Stage 5b validation pass dispatches conditionally and bounds parallelism", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+    const validatorTemplate = await readRepoFile(
+      "plugins/compound-engineering/skills/ce-code-review/references/validator-template.md",
+    )
+
+    // Stage 5b exists between Stage 5 and Stage 6
+    expect(content).toContain("### Stage 5b: Validation pass")
+
+    // Mode-conditional dispatch
+    expect(content).toContain("`headless`")
+    expect(content).toContain("`autofix`")
+    expect(content).toContain("walk-through routing (option A)")
+    expect(content).toContain("LFG routing (option B)")
+    expect(content).toContain("File-tickets routing (option C)")
+    expect(content).toMatch(/Report-only routing.*nothing is being externalized/i)
+
+    // Per-finding parallel dispatch (not batched)
+    expect(content).toMatch(/per.finding parallel dispatch/i)
+    expect(content).toMatch(/Independence is the point/i)
+
+    // Budget cap of 15
+    expect(content).toMatch(/exceeds 15 findings/i)
+    expect(content).toMatch(/highest-severity 15.*Drop the remainder/i)
+
+    // After-Review options B and C invoke validation before externalizing
+    expect(content).toMatch(/\(B\)\s*`LFG.*first run Stage 5b validation/)
+    expect(content).toMatch(/\(C\)\s*`File a \[TRACKER\].*first run Stage 5b validation/)
+
+    // Validator template exists and is read-only
+    expect(validatorTemplate).toContain("independent validator")
+    expect(validatorTemplate).toContain("operationally read-only")
+    expect(validatorTemplate).toContain('"validated": true | false')
+    expect(validatorTemplate).toMatch(/introduced by THIS diff/i)
+    expect(validatorTemplate).toMatch(/handled elsewhere/i)
+  })
+
+  test("PR-mode skip-condition pre-check stops without dispatching reviewers", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+
+    // Skip-check section exists
+    expect(content).toContain("**Skip-condition pre-check.**")
+
+    // gh pr view fetches state and file list for trivial judgment
+    expect(content).toMatch(/gh pr view.*--json state,title,body,files/)
+
+    // Hard skip rules
+    expect(content).toMatch(/state.*CLOSED.*MERGED/)
+
+    // Draft PRs are explicitly NOT skipped
+    expect(content).not.toMatch(/isDraft.*true.*stop/)
+    expect(content).toMatch(/Draft PRs are reviewed normally/)
+
+    // Trivial-PR judgment uses lightweight model, not a regex
+    expect(content).toMatch(/lightweight sub-agent/)
+    expect(content).toMatch(/model.*haiku/i)
+    expect(content).not.toMatch(/chore\\?\(deps\\?\)/)
+
+    // Skip cleanly without dispatching reviewers
+    expect(content).toMatch(/stop without dispatching reviewers/)
+
+    // Standalone branch and base: modes unaffected
+    expect(content).toMatch(/Standalone branch mode and `base:` mode are unaffected/)
+  })
+
+  test("mode-aware demotion routes weak general-quality findings to soft buckets", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+
+    // Mode-aware demotion step exists (sub-step within Stage 5; numbering may shift if steps reorder)
+    expect(content).toMatch(/Mode-aware demotion of weak general-quality findings/i)
+
+    // Conservative scope: testing + maintainability personas only
+    expect(content).toContain("`testing` or `maintainability`")
+
+    // Severity P2 or P3 only (P0/P1 always stay primary)
+    expect(content).toMatch(/Severity is P2 or P3/)
+
+    // autofix_class is advisory
+    expect(content).toMatch(/`autofix_class` is `advisory`/)
+
+    // Interactive/report-only: route to testing_gaps or residual_risks
+    expect(content).toMatch(/`testing`,?\s*append.*`testing_gaps`/)
+    expect(content).toMatch(/`maintainability`,?\s*append.*`residual_risks`/)
+
+    // Demotion entry uses title-only (compact return omits why_it_matters; report-only has no artifact)
+    expect(content).toMatch(/append `<file:line> -- <title>` to/)
+    expect(content).toMatch(/title only.*compact return omits/i)
+
+    // Headless/autofix: suppress entirely
+    expect(content).toMatch(/Headless and autofix modes.*Suppress/)
+
+    // Coverage section reports demotion count
+    expect(content).toMatch(/mode-aware demotion/)
+  })
+
+  test("personas use anchored rubric language and no float references remain", async () => {
+    const personas = [
+      "ce-correctness-reviewer",
+      "ce-testing-reviewer",
+      "ce-maintainability-reviewer",
+      "ce-project-standards-reviewer",
+      "ce-security-reviewer",
+      "ce-performance-reviewer",
+      "ce-api-contract-reviewer",
+      "ce-data-migrations-reviewer",
+      "ce-reliability-reviewer",
+      "ce-adversarial-reviewer",
+      "ce-cli-readiness-reviewer",
+      "ce-previous-comments-reviewer",
+      "ce-dhh-rails-reviewer",
+      "ce-kieran-rails-reviewer",
+      "ce-kieran-python-reviewer",
+      "ce-kieran-typescript-reviewer",
+      "ce-julik-frontend-races-reviewer",
+      "ce-swift-ios-reviewer",
+      "ce-agent-native-reviewer",
+    ]
+
+    for (const persona of personas) {
+      const content = await readRepoFile(`plugins/compound-engineering/agents/${persona}.agent.md`)
+
+      // Anchored language appears
+      expect(content).toMatch(/Anchor (75|100)/)
+      expect(content).toMatch(/Anchor 25 or below.*suppress/i)
+
+      // No float confidence references
+      expect(content).not.toMatch(/0\.\d{2}\+/)
+      expect(content).not.toMatch(/0\.60-0\.79/)
+      expect(content).not.toMatch(/below 0\.60/)
+    }
   })
 
   test("documents stack-specific conditional reviewers for the JSON pipeline", async () => {
