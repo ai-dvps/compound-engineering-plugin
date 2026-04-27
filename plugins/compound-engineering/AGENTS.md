@@ -5,11 +5,25 @@ They supplement the repo-root `AGENTS.md`.
 
 # Compounding Engineering Plugin Development
 
+## Runtime vs Authoring Context
+
+**This plugin's `AGENTS.md` and `CLAUDE.md` files are authoring context — they do not ship with the installed plugin.** Skills are packaged and installed into end-user environments (their own repos, or folders that may not even be git repos), where they run against *the user's* `AGENTS.md`/`CLAUDE.md`, not this repo's.
+
+Consequences:
+
+- Behavioral rules that govern skill *runtime* behavior must live inside the skill itself — in `SKILL.md` or files under its `references/`. Guidance placed in this file is invisible at runtime.
+- When two or more skills share a behavioral principle, duplicate the guidance into each skill (inline for short rules, `references/` for longer ones). There is no cross-skill shared-file mechanism (see "File References in Skills" below).
+- Do not propose that runtime guidance for ce-ideate, ce-brainstorm, ce-plan, or any other skill live in this AGENTS.md or in the repo-root AGENTS.md. Those files only shape how contributors edit the plugin.
+
+This is easy to miss because authoring feels like using: you edit the plugin while running inside this repo, and the repo's AGENTS.md is loaded — but that load does not follow the installed skill into a user's environment.
+
 ## Versioning Requirements
 
 **IMPORTANT**: Routine PRs should not cut releases for this plugin.
 
 The repo uses an automated release process to prepare plugin releases, including version selection and changelog generation. Because multiple PRs may merge before the next release, contributors cannot know the final released version from within an individual PR.
+
+**If `bun run release:validate` reports drift, see `docs/solutions/workflow/release-please-version-drift-recovery.md`** for the file-relationship map, the recovery decision tree (forward-sync vs. backward-revert vs. `release-as` pin), and worked examples. That doc answers questions the rules below don't: *why these files are release-managed, how they sync via `extra-files` and `linked-versions`, and what to do when the rules below were violated.*
 
 ### Contributor Rules
 
@@ -199,9 +213,9 @@ Plugin config lives at `.compound-engineering/config.local.yaml` in the repo roo
 
 2. **Worktrees:** Gitignored files are per-worktree. A config file created in the main checkout does not exist in worktrees. When reading config, fall back to the main repo root if the file is missing in the current worktree:
    ```
-   !`cat "$(git rev-parse --show-toplevel 2>/dev/null)/.compound-engineering/config.local.yaml" 2>/dev/null || cat "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)")/.compound-engineering/config.local.yaml" 2>/dev/null || echo '__NO_CONFIG__'`
+   !`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.compound-engineering/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.compound-engineering/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
    ```
-   The first `cat` tries the current worktree root. The second derives the main repo root from `git-common-dir` as a fallback. In a regular (non-worktree) checkout, both paths are identical.
+   The first subshell tries the current worktree root. The second derives the main repo root from `git-common-dir` as a fallback. The `[ -n "$top" ]` and `[ -n "$common" ]` guards matter: outside a git repo, both `git rev-parse` invocations emit empty, and an unguarded `cat "$(dirname "")/.compound-engineering/config.local.yaml"` would resolve to a CWD-relative `./...config.local.yaml` and could succeed against a stray file in the user's working directory. Guarded, both branches simply fail and the `__NO_CONFIG__` sentinel takes over. In a regular (non-worktree) checkout, both repo paths are identical.
 
 If neither path has the file, fall through to defaults — never fail or block on missing config.
 

@@ -20,6 +20,7 @@ bun run release:validate  # check plugin/marketplace consistency
 ## Working Agreement
 
 - **Branching:** Create a feature branch for any non-trivial change. If already on the correct branch for the task, keep using it; do not create additional branches or worktrees unless explicitly requested.
+- **Merge policy:** All changes to `main` go through pull requests. Direct pushes and direct merges are not allowed; branch protection on `main` enforces this by requiring the `test` status check to pass. The direct path bypasses `release:validate`, the test suite, and PR title validation — past direct merges have caused version drift requiring multi-PR recovery (see `docs/solutions/workflow/release-please-version-drift-recovery.md`).
 - **Safety:** Do not delete or overwrite user data. Avoid destructive commands.
 - **Testing:** Run `bun test` after changes that affect parsing, conversion, or output.
 - **Release versioning:** Releases are prepared by release automation, not normal feature PRs. The repo now has multiple release components (`cli`, `compound-engineering`, `coding-tutor`, `marketplace`). GitHub release PRs and GitHub Releases are the canonical release-notes surface for new releases; root `CHANGELOG.md` is only a pointer to that history. Use conventional titles such as `feat:` and `fix:` so release automation can classify change intent, but do not hand-bump release-owned versions or hand-author release notes in routine PRs.
@@ -27,15 +28,15 @@ bun run release:validate  # check plugin/marketplace consistency
 - **Output Paths:** Keep OpenCode output at `opencode.json` and `.opencode/{agents,skills,plugins}`. For OpenCode, command go to `~/.config/opencode/commands/<name>.md`; `opencode.json` is deep-merged (never overwritten wholesale).
 - **Scratch Space:** Default to OS temp. Use `.context/` only when explicitly justified by the rules below.
   - **Default: OS temp** — covers most scratch, including per-run throwaway AND cross-invocation reusable, regardless of whether a repo is present or whether other skills may read the files. A stable OS-temp prefix handles cross-skill and cross-invocation coordination equally well as an in-repo path; repo-adjacency is rarely the relevant property.
-    - **Per-run throwaway**: `mktemp -d -t <prefix>-XXXXXX` (OS handles cleanup). Use for files consumed once and discarded — captured screenshots, stitched GIFs, intermediate build outputs, recordings, delegation prompts/results, single-run checkpoints.
-    - **Cross-invocation reusable**: stable path like `"${TMPDIR:-/tmp}/compound-engineering/<skill-name>/<run-id>/"` — **not** `mktemp -d` — so later invocations of the same skill can discover sibling run-ids. Use for caches keyed by session, checkpoints meant to survive context compaction within a loose session, or any state where later runs of the same skill need to locate prior outputs.
+    - **Per-run throwaway**: `mktemp -d -t <prefix>-XXXXXX` (OS handles cleanup). Use for files consumed once and discarded — captured screenshots, stitched GIFs, intermediate build outputs, recordings, delegation prompts/results, single-run checkpoints. The resulting path is opaque (on macOS it resolves under `$TMPDIR`/`/var/folders/...`) — that is appropriate for throwaway files users are not meant to access.
+    - **Cross-invocation reusable**: stable path `/tmp/compound-engineering/<skill-name>/<run-id>/` — **not** `mktemp -d` — so later invocations of the same skill can discover sibling run-ids. Use `/tmp` directly rather than `$TMPDIR` so paths stay accessible: `$TMPDIR` on macOS resolves to `/var/folders/64/.../T/`, which is hostile for users who want to inspect checkpoints, grep them, or copy them out. The per-user isolation `$TMPDIR` provides is not valuable for cross-invocation reusable scratch where users are the intended audience. Use for caches keyed by session, checkpoints meant to survive context compaction within a loose session, or any state where later runs of the same skill need to locate prior outputs.
   - **Exception: `.context/`** — use only when the artifact is genuinely bound to the CWD repo AND meets at least one of:
     - (a) **User-curated**: the user is expected to inspect, manipulate, or manually curate the artifact outside the skill (e.g., a per-repo TODO database, a per-spec optimization log that survives across sessions on the same checkout).
     - (b) **Repo+branch-inseparable**: the artifact's meaning is inseparable from this specific repo or branch (e.g., branch-specific resume state that a user expects to pick up again in the same checkout).
     - (c) **Path is core UX**: surfacing the artifact path back to the user is a core part of the skill's output and that path is easier to communicate as a repo-relative location than an OS-temp one.
     Namespace under `.context/compound-engineering/<workflow-or-skill-name>/`, add a per-run subdirectory when concurrent runs are plausible, and decide cleanup behavior per the artifact's lifecycle (per-run scratch clears on success; user-curated state persists). "Shared between skills" is not by itself sufficient — OS temp handles that equally well.
   - **Durable outputs** (plans, specs, learnings, docs, final deliverables) belong in `docs/` or another repo-tracked location, not in either scratch tier.
-  - **Cross-platform note:** `"${TMPDIR:-/tmp}"` is the portable prefix — `$TMPDIR` resolves on macOS (per-user path in `/var/folders/`) and may be set on Linux; the `/tmp` fallback covers unset cases. `mktemp -d -t <prefix>-XXXXXX` works on macOS, Linux, and WSL. Skills authored here assume Unix-like shells; native Windows is not a current target.
+  - **Cross-platform note:** `/tmp` is writable on macOS (symlink to `/private/tmp`), Linux, and WSL. `mktemp -d -t <prefix>-XXXXXX` also works on all three. Skills authored here assume Unix-like shells; native Windows is not a current target.
 - **Character encoding:**
   - **Identifiers** (file names, agent names, command names): ASCII only -- converters and regex patterns depend on it.
   - **Markdown tables:** Use pipe-delimited (`| col | col |`), never box-drawing characters.
@@ -82,6 +83,18 @@ cat .claude-plugin/marketplace.json | jq .
 cat plugins/compound-engineering/.claude-plugin/plugin.json | jq .
 ```
 
+## Validating Agent and Skill Changes
+
+Behavioral changes to a plugin agent or skill (anything under `plugins/*/agents/` or `plugins/*/skills/`) need a different validation path than mechanical code changes, because of how Claude Code loads plugins.
+
+- **Use the `skill-creator` skill to test changes.** Skill-creator is purpose-built for this: it spawns a generic subagent and injects the agent or skill content into the subagent's prompt at dispatch time, so each run reads the current source from disk. Invoke `/skill-creator` and use its eval workflow rather than reaching for ad-hoc workarounds.
+
+- **Plugin agent and skill definitions both cache at session start.** Once a Claude Code session is open, dispatching a typed agent (e.g., `Agent({subagent_type: "compound-engineering:ce-session-historian"})`) runs the in-memory copy that was loaded when the session began. The same applies to skills: invoking `Skill ce-session-inventory` goes through the cached skill loader, so edits to skill scripts are also not tested via that path. File edits to either layer after session start do not propagate within the same session. Any iteration loop built around typed-agent dispatch or Skill-tool invocation in the same session is testing pre-edit content, not your changes.
+
+- **Do NOT edit `~/.claude/plugins/cache/` or `~/.claude/plugins/marketplaces/` to try to force a reload.** Those paths are user machine state, not repo-managed. Modifying them does not reliably bypass the in-session cache (it didn't, in observed behavior), risks being silently overwritten by plugin updates, and is the wrong layer to test from. The skill-creator pattern is the proper approach; if you genuinely need fresh-loaded behavior of the typed-agent dispatch path, restart the Claude Code session — but skill-creator is preferred for fast iteration.
+
+- **Mechanical changes do not have this restriction.** Skill scripts (e.g., `extract-metadata.py`), parser logic, conversion code, and anything `bun test` exercises always run the current source. The caching issue only affects LLM-driven agent or skill prose behavior dispatched through the plugin loader.
+
 ## Coding Conventions
 
 - Prefer explicit mappings over implicit magic when converting between platforms.
@@ -92,8 +105,9 @@ cat plugins/compound-engineering/.claude-plugin/plugin.json | jq .
 ## Commit Conventions
 
 - **Prefix is based on intent, not file type.** Use conventional prefixes (`feat:`, `fix:`, `docs:`, `refactor:`, etc.) but classify by what the change does, not the file extension. Files under `plugins/*/skills/`, `plugins/*/agents/`, and `.claude-plugin/` are product code even though they are Markdown or JSON. Reserve `docs:` for files whose sole purpose is documentation (`README.md`, `docs/`, `CHANGELOG.md`).
+- **Type selection — classify by intent, not diff shape.** Where `fix:` and `feat:` could both seem to fit, default to `fix:`: a change that remedies broken or missing behavior is `fix:` even when implemented by adding code, and net additions do not turn a fix into a `feat:`. Reserve `feat:` for capabilities the user could not previously accomplish where nothing was broken. Other conventional types (`chore:`, `refactor:`, `docs:`, `perf:`, `test:`, `ci:`, `build:`, `style:`) remain primary when they describe the change more precisely than either. Heuristic: if a regression test you could write today would have failed *before* the change, it's `fix:`. The user may override this default for a specific change.
 - **Include a component scope.** The scope appears verbatim in the changelog. Pick the narrowest useful label: skill/agent name (`document-review`, `learnings-researcher`), plugin or CLI area (`coding-tutor`, `cli`), or shared area when cross-cutting (`review`, `research`, `converters`). Never use `compound-engineering` — it's the entire plugin and tells the reader nothing. Omit scope only when no single label adds clarity.
-- Breaking changes must be explicit with `!` or a breaking-change footer so release automation can classify them correctly.
+- **Never use `!` or a `BREAKING CHANGE:` footer without explicit user confirmation.** These markers trigger release-please's automatic major version bump — a decision the user may not want even when a change is technically breaking. If a change appears breaking, surface that to the user and let them decide whether to apply the marker.
 
 ## Adding a New Target Provider
 
