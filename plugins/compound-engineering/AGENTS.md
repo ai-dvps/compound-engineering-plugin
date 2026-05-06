@@ -88,6 +88,8 @@ Important: Just because the developer's installed plugin may be out of date, it'
 
 **Agents** follow the same convention: `ce-adversarial-reviewer`, `ce-learnings-researcher`, etc. When referencing agents from skills, use the bare `ce-<agent-name>` form (e.g., `ce-adversarial-reviewer`) — the `ce-` prefix is sufficient for uniqueness across plugins.
 
+**The `ce-` prefix is required for every new skill and agent — no exceptions.** Three legacy skills (`every-style-editor`, `file-todos`, `lfg`) predate the rule and remain unprefixed; they are pinned in `tests/frontmatter.test.ts` as the only allowed exceptions. Do not add to that allowlist. When adding a new skill, the directory name, the SKILL.md `name:` frontmatter, and any README references must all start with `ce-`. The frontmatter test enforces this and will fail on a missing prefix.
+
 ## Known External Limitations
 
 **Proof HITL surfaces a ghost "AI collaborator" agent** (noted 2026-04-16, may change): The Proof API auto-joins any header-less `/state` read under a synthetic `ai:auto-<hash>` identity, so docs created by the `skills/proof/` HITL workflow show a phantom participant alongside `Compound Engineering`. The only way to suppress it is to set `ownerId: "agent:ai:compound-engineering"` on create — but that transfers document ownership to the agent and prevents the user from claiming it into their Proof library, so we don't use it. Treat as cosmetic noise; don't reintroduce the `ownerId` workaround. Tracked upstream: https://github.com/EveryInc/proof/issues/951.
@@ -227,10 +229,12 @@ Why: shell-heavy exploration causes avoidable permission prompts in sub-agent wo
 - [ ] When shell is the only option (e.g., `ast-grep`, `bundle show`, git commands), instruct one simple command at a time — no action chaining (`cmd1 && cmd2`, `cmd1 ; cmd2`) and no error suppression (`2>/dev/null`, `|| true`). Two narrow exceptions: boolean conditions within if/while guards (`[ -n "$X" ] || [ -n "$Y" ]`) are fine — that is normal conditional logic, not action chaining. **Value-producing preparatory commands** (`VAR=$(cmd1) && cmd2 "$VAR"`) are also fine when `cmd2` strictly consumes `cmd1`'s output and splitting would require manually threading the value through model context across bash calls (e.g., `BODY_FILE=$(mktemp -u) && cat > "$BODY_FILE" <<EOF ... EOF`). Simple pipes (e.g., `| jq .field`) and output redirection (e.g., `> file`) are acceptable when they don't obscure failures
 - [ ] **Pre-resolution exception:** `!` backtick pre-resolution commands run at skill load time, not at agent runtime. They may use chaining (`&&`, `||`), error suppression (`2>/dev/null`), and fallback sentinels (e.g., `|| echo '__NO_CONFIG__'`) to produce a clean, parseable value for the model. This is the preferred pattern for environment probes (CLI availability, config file reads) that would otherwise require runtime shell calls with chaining. Three shapes are rejected by Claude Code's safety check and must be avoided in `!` backticks:
   - **`case ... esac`** is rejected as `Contains case_statement`. Use `&&` chaining or pipe-to-sed, or extract to a script.
-  - **`[A] && B || C`** (mixing `&&` and `||` at the same lexical depth) is rejected as `ambiguous syntax with command separators` (issue #710). Wrap the `&&` chain in a subshell so only `||` remains at top level — `(A && B) || C` — or emit the raw value and let the agent's prose decide. Example of the safe shape: `` !`(top=$(...); [ -n "$top" ] && cat "$top/file") || echo '__SENTINEL__'` ``
-  - **`$(...)` containing a double-quoted string** (e.g., `basename "$(dirname "$common")"`) is rejected as `Unhandled node type: string` (issue #709). Replace nested `$()` with parameter expansion (`${common%/.git}`), pipe to sed (`| sed -E 's|/\.git/?$||; s|.*/||'`), or extract to a script invoked as `` !`bash "${CLAUDE_SKILL_DIR}/scripts/<name>.sh"` ``.
+  - **`;` (semicolon command separator)** is rejected as `Unhandled node type: ;`. Use `&&` or `||` chaining when those operators express the same intent; extract to a script when unconditional sequencing is genuinely required (`;` is not equivalent to either — it runs the next command regardless of exit code).
+  - **`[A] && B || C`** (mixing `&&` and `||` at the same lexical depth) is rejected as `ambiguous syntax with command separators` (issue #710). Wrap the `&&` chain in a subshell so only `||` remains at top level — `(A && B) || C` — or emit the raw value and let the agent's prose decide. Example of the safe shape: `` !`cat "$(git rev-parse --show-toplevel 2>/dev/null)/path/to/file" 2>/dev/null || echo '__SENTINEL__'` ``
+  - **`$(...)` containing a double-quoted string** (e.g., `basename "$(dirname "$common")"`) is rejected as `Unhandled node type: string` (issue #709). Extract the logic to a script under `scripts/` — do NOT replace with parameter expansion (see next bullet).
+  - **Bash parameter expansion operators** (`${var%pattern}`, `${var##pattern}`, `${var#pattern}`, `${var%%pattern}`, `${var/pat/repl}`, `${var:-default}`, etc.) are rejected as `Contains expansion`. Simple `${var}` is fine; operators after the variable name are not. This means paths like `${common%/.git}` (strip-suffix) or `${repo##*/}` (strip-prefix) cannot be used in `!` pre-resolution. To derive a directory name or strip a path component, extract to a script.
 
-  When the logic is non-trivial, prefer extracting to a script under the skill's `scripts/` directory; the safety check then sees only `bash <quoted-path>`, which sidesteps both current and future safety-check tightenings. Tests in `tests/skill-shell-safety.test.ts` enforce all three patterns.
+  When the logic is non-trivial, prefer extracting to a script under the skill's `scripts/` directory; the safety check then sees only `bash <quoted-path>`, which sidesteps both current and future safety-check tightenings. Tests in `tests/skill-shell-safety.test.ts` enforce all four patterns.
 
   **Permission gate on extracted scripts — invoke from the skill body, not from `!` pre-resolution.** A pre-resolution `bash "${CLAUDE_SKILL_DIR}/scripts/<name>.sh"` form passes the safety check but trips Claude Code's permission check at skill-load time, which does *not* honor `defaultMode: bypassPermissions`. Allow-listing via `allowed-tools` frontmatter is unreliable at *load time*: empirically, broad `Bash(bash *)` patterns appear to load with bypass on but narrow filename-pinned patterns like `Bash(bash *upstream-version.sh)` fail with bypass off. Move the script invocation into the skill body so it runs via the runtime Bash tool instead. Two pieces are required for it to actually work:
 
@@ -270,11 +274,13 @@ Plugin config lives at `.compound-engineering/config.local.yaml` in the repo roo
 
 1. **Path resolution:** Never read the config relative to CWD — the user may invoke a skill from a subdirectory. Always resolve from the repo root. In pre-resolution commands, use `git rev-parse --show-toplevel` to find the root.
 
-2. **Worktrees:** Gitignored files are per-worktree. A config file created in the main checkout does not exist in worktrees. When reading config, fall back to the main repo root if the file is missing in the current worktree:
+2. **Worktrees:** Gitignored files are per-worktree. A config file created in the main checkout does not exist in worktrees. Use `--show-toplevel` to find the root:
    ```
-   !`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.compound-engineering/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); main="${common%/.git}"; [ -n "$main" ] && cat "$main/.compound-engineering/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+   !`cat "$(git rev-parse --show-toplevel 2>/dev/null)/.compound-engineering/config.local.yaml" 2>/dev/null || echo '__NO_CONFIG__'`
    ```
-   The first subshell tries the current worktree root. The second derives the main repo root from `git-common-dir` (stripping the trailing `/.git` with `${common%/.git}`) as a fallback. Use parameter expansion rather than `dirname` because Claude Code's safety check rejects nested `$(dirname "$common")` inside double-quoted strings as "Unhandled node type: string" (see issue #709). The `[ -n "$top" ]` and `[ -n "$main" ]` guards matter: outside a git repo, both `git rev-parse` invocations emit empty, and an unguarded `cat "/.compound-engineering/config.local.yaml"` would attempt to read from `/`. Guarded, both branches simply fail and the `__NO_CONFIG__` sentinel takes over. In a regular (non-worktree) checkout, both repo paths are identical.
+   Outside a git repo, `git rev-parse` emits empty and `cat "/.compound-engineering/config.local.yaml"` fails (permission denied or not found, suppressed by `2>/dev/null`), so the `__NO_CONFIG__` sentinel fires. Note: the previous pattern used `(top=$(...); [ -n "$top" ] && cat "$top/...")` with a semicolon to guard the empty-root case, but `;` is rejected by Claude Code's safety checker as `Unhandled node type: ;` (see Pre-resolution exception above) and must not be used in `!` pre-resolution.
+
+   Note: in a worktree, `--show-toplevel` returns the worktree path, so config from the main checkout will not be found. This is acceptable — config is optional and users who work from worktrees can add a config file there. A previous pattern used `git-common-dir` with `${common%/.git}` to derive the main repo root as a fallback, but bash parameter expansion operators are rejected as "Contains expansion" (see Pre-resolution exception above), so that approach is no longer viable without a script.
 
 If neither path has the file, fall through to defaults — never fail or block on missing config.
 
@@ -319,6 +325,21 @@ Beta skills use a `-beta` suffix and `disable-model-invocation: true` to prevent
 ### Stable/Beta Sync
 
 When modifying a skill that has a `-beta` counterpart (or vice versa), always check the other version and **state your sync decision explicitly** before committing — e.g., "Propagated to beta — shared test guidance" or "Not propagating — this is the experimental delegate mode beta exists to test." Syncing to both, stable-only, and beta-only are all valid outcomes. The goal is deliberate reasoning, not a default rule.
+
+## Skill Documentation
+
+Many skills have a user-facing doc at `docs/skills/<skill>.md` (repo-root `docs/`, not under `plugins/`) that explains the skill's high-level purpose, novel mechanics, and chain position — separate from the runtime SKILL.md. The `docs/skills/README.md` index lists all documented skills grouped by category.
+
+When modifying such a skill, **state your skill-doc sync decision explicitly** before committing — e.g., "doc updated — added new framing for surprise-me mode" or "doc not updated — change is internal to Phase 2, doesn't surface at doc level." **Most changes don't warrant an update**: internal phase refactors, prompt-tuning, and mechanic-level bug fixes typically don't surface at the doc's level of abstraction.
+
+Update the skill doc when:
+
+- The skill's high-level purpose or framing has shifted
+- A highlighted novel mechanic changed materially or was removed
+- A new mechanic emerged that belongs in "What Makes It Novel"
+- The doc's quick example, FAQ, or use cases would mislead a reader
+
+Edit just the parts that became inaccurate; don't rewrite to match SKILL.md. Skills without a doc need no check — creating one is a deliberate decision, not a reflexive one. When adding a doc for a skill that didn't have one, also link it from the skill's row in `plugins/compound-engineering/README.md` and add it to the appropriate category in `docs/skills/README.md`.
 
 ## Documented Solutions
 

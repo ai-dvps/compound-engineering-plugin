@@ -9,6 +9,74 @@ All notable changes to the compound-engineering plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.1](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.6.0...compound-engineering-v3.6.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* **doc-review:** cut review noise on plans, scope personas to doc shape ([#780](https://github.com/EveryInc/compound-engineering-plugin/issues/780)) ([8349e75](https://github.com/EveryInc/compound-engineering-plugin/commit/8349e750b856d267b74fbbeb2fb135e4ff73eb91))
+
+## [3.6.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.5.0...compound-engineering-v3.6.0) (2026-05-05)
+
+
+### Features
+
+* **ce-work-beta:** adaptive effort selection for Codex delegation batches ([#759](https://github.com/EveryInc/compound-engineering-plugin/issues/759)) ([3e03365](https://github.com/EveryInc/compound-engineering-plugin/commit/3e03365d54b5ec909ba75adfc15b870f2e5a9b53))
+
+
+### Bug Fixes
+
+* **ce-doc-review:** block diagram deletion as a fix recommendation ([#775](https://github.com/EveryInc/compound-engineering-plugin/issues/775)) ([1f3c646](https://github.com/EveryInc/compound-engineering-plugin/commit/1f3c6466e4eb4e1b584c658953dfb1ca98dd3335))
+* **ce-doc-review:** tighten finding resolution routing ([#769](https://github.com/EveryInc/compound-engineering-plugin/issues/769)) ([5427863](https://github.com/EveryInc/compound-engineering-plugin/commit/542786320bc155d48823e58162d6a474b54be671))
+* **ce-plan:** render Implementation Units as headings, not bulleted list items ([#766](https://github.com/EveryInc/compound-engineering-plugin/issues/766)) ([be2efd7](https://github.com/EveryInc/compound-engineering-plugin/commit/be2efd7d7605c483ea9f068c6190b81a9d68e942))
+* **ce-work-beta:** replace semicolon pre-resolution with single-command form ([#758](https://github.com/EveryInc/compound-engineering-plugin/issues/758)) ([5139ff1](https://github.com/EveryInc/compound-engineering-plugin/commit/5139ff13e9102e9db821fbeffa5e2abc49014dd6))
+* **ce-work-beta:** update Codex sandbox flags to current CLI syntax ([#770](https://github.com/EveryInc/compound-engineering-plugin/issues/770)) ([7ff3472](https://github.com/EveryInc/compound-engineering-plugin/commit/7ff3472cabb4dfe7141b55429ed2bc6b02a7b5e9))
+* **ce-worktree:** resolve script path against skill dir, not user CWD ([#772](https://github.com/EveryInc/compound-engineering-plugin/issues/772)) ([4cc1ee6](https://github.com/EveryInc/compound-engineering-plugin/commit/4cc1ee6fe2a353cd0b8e7466ec27e9556b042ee3))
+* **review:** escape literal pipes in finding table cells ([#779](https://github.com/EveryInc/compound-engineering-plugin/issues/779)) ([c7fc674](https://github.com/EveryInc/compound-engineering-plugin/commit/c7fc6743264440c2b0093607572764a0ce451b5d))
+
+## [3.5.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.4.2...compound-engineering-v3.5.0) (2026-05-04)
+
+
+### Features
+
+* **riffrec-feedback-analysis:** add Riffrec feedback skill with three-path routing ([#747](https://github.com/EveryInc/compound-engineering-plugin/issues/747)) ([dde9256](https://github.com/EveryInc/compound-engineering-plugin/commit/dde9256362db90606d052c662dc8f2f0ae6b620b))
+
+## [3.4.2](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.4.1...compound-engineering-v3.4.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* **ce-code-review:** keep finding numbers stable ([#754](https://github.com/EveryInc/compound-engineering-plugin/issues/754)) ([e856756](https://github.com/EveryInc/compound-engineering-plugin/commit/e8567566b7ed779ea1964d6ffe97e8cb4ca79d73))
+* **ce-commit-push-pr:** use body-file for PR descriptions ([#757](https://github.com/EveryInc/compound-engineering-plugin/issues/757)) ([a84cb75](https://github.com/EveryInc/compound-engineering-plugin/commit/a84cb759d078787f1e2f4a0ce2eda9d8680b7c90))
+* **ce-compound, ce-sessions:** remove bash parameter expansion from ! backtick  ([#752](https://github.com/EveryInc/compound-engineering-plugin/issues/752)) ([9539bf0](https://github.com/EveryInc/compound-engineering-plugin/commit/9539bf045deba099a20d306b2b118e3b019c633c))
+* **ce-polish-beta:** support Bash 3.2 project detection ([#755](https://github.com/EveryInc/compound-engineering-plugin/issues/755)) ([caf5e12](https://github.com/EveryInc/compound-engineering-plugin/commit/caf5e1251caeeed45ed2e18eb366fc25d90f38be))
+
+## [3.4.1](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.4.0...compound-engineering-v3.4.1) (2026-05-01)
+
+
+### Bug Fixes
+
+* **ce-setup:** detect codex global skills ([#739](https://github.com/EveryInc/compound-engineering-plugin/issues/739)) ([887db6b](https://github.com/EveryInc/compound-engineering-plugin/commit/887db6b2ade997a2723debc15b5baf34fcf52fb4))
+* **code-review:** grant Write to JSON-pipeline reviewer agents ([#741](https://github.com/EveryInc/compound-engineering-plugin/issues/741)) ([520a9eb](https://github.com/EveryInc/compound-engineering-plugin/commit/520a9ebea039f4f5d984cd7f31d8b8e60a9e0bc6))
+
+## [3.4.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.3.2...compound-engineering-v3.4.0) (2026-05-01)
+
+
+### Features
+
+* **ce-simplify-code:** add skill for simplifying recent code changes ([#735](https://github.com/EveryInc/compound-engineering-plugin/issues/735)) ([2d20757](https://github.com/EveryInc/compound-engineering-plugin/commit/2d207574123782722116bd3d93f9f5756fab4dd3))
+* **ce-strategy,ce-product-pulse:** add PM skills for upstream anchor and outcome pulse ([#614](https://github.com/EveryInc/compound-engineering-plugin/issues/614)) ([cb8f9b3](https://github.com/EveryInc/compound-engineering-plugin/commit/cb8f9b348391d28f31ce367b9ff308980939c96f))
+* **ce-strategy:** move strategy doc to root and add frontmatter ([#732](https://github.com/EveryInc/compound-engineering-plugin/issues/732)) ([265cb42](https://github.com/EveryInc/compound-engineering-plugin/commit/265cb4280f22bbd2fd5cc45e338371442b6c1692))
+
+
+### Bug Fixes
+
+* **ce-commit-push-pr:** URL-encode parens in badge model-slug examples ([#725](https://github.com/EveryInc/compound-engineering-plugin/issues/725)) ([3873b9e](https://github.com/EveryInc/compound-engineering-plugin/commit/3873b9e9de483cfe91eaed295a6b736d0a2e1168))
+* **ce-compound,ce-sessions:** handle non-git CWD in pre-resolved git branch ([#731](https://github.com/EveryInc/compound-engineering-plugin/issues/731)) ([5e04534](https://github.com/EveryInc/compound-engineering-plugin/commit/5e045341372fc95d284268d514a53da5722c81d2))
+* **ce-plan:** close synthesis drift in rich-context invocations ([#729](https://github.com/EveryInc/compound-engineering-plugin/issues/729)) ([15c1cde](https://github.com/EveryInc/compound-engineering-plugin/commit/15c1cde7b353d8f309b5a2de94bafb99380d787a))
+* **ce-sessions:** 722 ce-compound and ce-sessions permission error ([#723](https://github.com/EveryInc/compound-engineering-plugin/issues/723)) ([8f80466](https://github.com/EveryInc/compound-engineering-plugin/commit/8f804669b184bc68ef6dbab4669fe0e431d8271a))
+* **review:** default to harness-native code review, escalate on risk ([#721](https://github.com/EveryInc/compound-engineering-plugin/issues/721)) ([d217660](https://github.com/EveryInc/compound-engineering-plugin/commit/d217660b3d37acf38227abf5c57ba6f390ccaa1e))
+
 ## [3.3.2](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.3.1...compound-engineering-v3.3.2) (2026-04-29)
 
 

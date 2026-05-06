@@ -43,7 +43,7 @@ After extracting tokens from arguments, resolve the delegation state using this 
 3. **Hard default** -- `false` (delegation off)
 
 **Config (pre-resolved):**
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.compound-engineering/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); main="${common%/.git}"; [ -n "$main" ] && cat "$main/.compound-engineering/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+!`cat "$(git rev-parse --show-toplevel 2>/dev/null)/.compound-engineering/config.local.yaml" 2>/dev/null || echo '__NO_CONFIG__'`
 
 If the block above contains YAML key-value pairs, extract values for the keys listed below.
 If it shows `__NO_CONFIG__`, the file does not exist — all settings fall through to defaults.
@@ -65,7 +65,8 @@ Store the resolved state for downstream consumption:
 - `sandbox_mode` -- `yolo` or `full-auto` (from config or default `yolo`)
 - `consent_granted` -- boolean (from config `work_delegate_consent`)
 - `delegate_model` -- string from config, or unset (defer to Codex config)
-- `delegate_effort` -- string from config, or unset (defer to Codex config)
+- `delegate_effort` -- string from config, or unset (defer to Codex config). Floor for per-batch effort selection; not passed directly to `codex exec`.
+- `effective_effort` -- per-batch derived value (`default | medium | high | xhigh`), computed before each batch from `delegate_effort` and the picked level per `references/codex-delegation-workflow.md` ("Per-Batch Effort"). Feeds the `codex exec` invocation in place of `delegate_effort`.
 
 ---
 
@@ -384,7 +385,7 @@ Determine how to proceed based on what was provided in `<input_document>`.
    - Keep user informed of major milestones
    - When the plan defines U-IDs for Implementation Units, or the plan or origin document carries stable R-IDs (and optionally A/F/AE IDs), reference them in blockers, deferred-work notes, task summaries, and final verification — not routine status updates. U-IDs anchor units across plan edits; R/A/F/AE anchor product intent across the brainstorm-plan handoff. Use the IDs the plan supplies and do not invent ones it does not. This preserves traceability without burying signal under noise.
 
-### Phase 3-4: Quality Check and Ship It
+### Phase 3-4: Quality Check and Finishing Work
 
 When all Phase 2 tasks are complete and execution transitions to quality check, read `references/shipping-workflow.md` for the full shipping workflow: quality checks, code review, final validation, PR creation, and notification.
 

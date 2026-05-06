@@ -1,5 +1,63 @@
 # Changelog
 
+## [3.6.1](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.6.0...cli-v3.6.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* **doc-review:** cut review noise on plans, scope personas to doc shape ([#780](https://github.com/EveryInc/compound-engineering-plugin/issues/780)) ([8349e75](https://github.com/EveryInc/compound-engineering-plugin/commit/8349e750b856d267b74fbbeb2fb135e4ff73eb91))
+
+## [3.6.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.5.0...cli-v3.6.0) (2026-05-05)
+
+
+### Features
+
+* convert hooks to .codex/hooks.json for Codex target ([#742](https://github.com/EveryInc/compound-engineering-plugin/issues/742)) ([60b66dd](https://github.com/EveryInc/compound-engineering-plugin/commit/60b66dd904c3a81e0a25dd3bc61e2d94d8837f86))
+
+
+### Bug Fixes
+
+* **ce-plan:** render Implementation Units as headings, not bulleted list items ([#766](https://github.com/EveryInc/compound-engineering-plugin/issues/766)) ([be2efd7](https://github.com/EveryInc/compound-engineering-plugin/commit/be2efd7d7605c483ea9f068c6190b81a9d68e942))
+* **ce-worktree:** resolve script path against skill dir, not user CWD ([#772](https://github.com/EveryInc/compound-engineering-plugin/issues/772)) ([4cc1ee6](https://github.com/EveryInc/compound-engineering-plugin/commit/4cc1ee6fe2a353cd0b8e7466ec27e9556b042ee3))
+
+## [3.5.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.4.2...cli-v3.5.0) (2026-05-04)
+
+
+### Features
+
+* **riffrec-feedback-analysis:** add Riffrec feedback skill with three-path routing ([#747](https://github.com/EveryInc/compound-engineering-plugin/issues/747)) ([dde9256](https://github.com/EveryInc/compound-engineering-plugin/commit/dde9256362db90606d052c662dc8f2f0ae6b620b))
+
+## [3.4.2](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.4.1...cli-v3.4.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* **ce-code-review:** keep finding numbers stable ([#754](https://github.com/EveryInc/compound-engineering-plugin/issues/754)) ([e856756](https://github.com/EveryInc/compound-engineering-plugin/commit/e8567566b7ed779ea1964d6ffe97e8cb4ca79d73))
+* **ce-compound, ce-sessions:** remove bash parameter expansion from ! backtick  ([#752](https://github.com/EveryInc/compound-engineering-plugin/issues/752)) ([9539bf0](https://github.com/EveryInc/compound-engineering-plugin/commit/9539bf045deba099a20d306b2b118e3b019c633c))
+
+## [3.4.1](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.4.0...cli-v3.4.1) (2026-05-01)
+
+
+### Bug Fixes
+
+* **ce-setup:** detect codex global skills ([#739](https://github.com/EveryInc/compound-engineering-plugin/issues/739)) ([887db6b](https://github.com/EveryInc/compound-engineering-plugin/commit/887db6b2ade997a2723debc15b5baf34fcf52fb4))
+* **code-review:** grant Write to JSON-pipeline reviewer agents ([#741](https://github.com/EveryInc/compound-engineering-plugin/issues/741)) ([520a9eb](https://github.com/EveryInc/compound-engineering-plugin/commit/520a9ebea039f4f5d984cd7f31d8b8e60a9e0bc6))
+
+## [3.4.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.3.2...cli-v3.4.0) (2026-05-01)
+
+
+### Features
+
+* **ce-strategy,ce-product-pulse:** add PM skills for upstream anchor and outcome pulse ([#614](https://github.com/EveryInc/compound-engineering-plugin/issues/614)) ([cb8f9b3](https://github.com/EveryInc/compound-engineering-plugin/commit/cb8f9b348391d28f31ce367b9ff308980939c96f))
+* **ce-strategy:** move strategy doc to root and add frontmatter ([#732](https://github.com/EveryInc/compound-engineering-plugin/issues/732)) ([265cb42](https://github.com/EveryInc/compound-engineering-plugin/commit/265cb4280f22bbd2fd5cc45e338371442b6c1692))
+
+
+### Bug Fixes
+
+* **ce-compound,ce-sessions:** handle non-git CWD in pre-resolved git branch ([#731](https://github.com/EveryInc/compound-engineering-plugin/issues/731)) ([5e04534](https://github.com/EveryInc/compound-engineering-plugin/commit/5e045341372fc95d284268d514a53da5722c81d2))
+* **ce-sessions:** 722 ce-compound and ce-sessions permission error ([#723](https://github.com/EveryInc/compound-engineering-plugin/issues/723)) ([8f80466](https://github.com/EveryInc/compound-engineering-plugin/commit/8f804669b184bc68ef6dbab4669fe0e431d8271a))
+* **review:** default to harness-native code review, escalate on risk ([#721](https://github.com/EveryInc/compound-engineering-plugin/issues/721)) ([d217660](https://github.com/EveryInc/compound-engineering-plugin/commit/d217660b3d37acf38227abf5c57ba6f390ccaa1e))
+
 ## [3.3.2](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.3.1...cli-v3.3.2) (2026-04-29)
 
 

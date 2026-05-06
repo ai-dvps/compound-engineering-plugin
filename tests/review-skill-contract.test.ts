@@ -26,6 +26,16 @@ describe("ce-code-review contract", () => {
     expect(content).not.toContain("Which severities should I fix?")
   })
 
+  test("keeps plan requirements completeness compatible with current and legacy unit formats", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+
+    expect(content).toContain("current numeric subsections")
+    expect(content).toContain("`### U1.`")
+    expect(content).toContain("`### Unit 1:`")
+    expect(content).toContain("legacy bullet or checkbox unit entries")
+    expect(content).toContain("unaddressed requirements or implementation units")
+  })
+
   test("documents headless mode contract for programmatic callers", async () => {
     const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
 
@@ -489,7 +499,6 @@ describe("ce-code-review contract", () => {
       "ce-data-migrations-reviewer",
       "ce-reliability-reviewer",
       "ce-adversarial-reviewer",
-      "ce-cli-readiness-reviewer",
       "ce-previous-comments-reviewer",
       "ce-dhh-rails-reviewer",
       "ce-kieran-rails-reviewer",
@@ -576,6 +585,40 @@ describe("ce-code-review contract", () => {
     }
   })
 
+  test("JSON-pipeline persona agents grant Write so they can save run artifacts", async () => {
+    // The ce-code-review subagent template instructs each persona to write its full
+    // analysis to /tmp/compound-engineering/ce-code-review/{run_id}/{reviewer}.json.
+    // Without Write in tools, that "one permitted write" cannot happen and headless
+    // detail enrichment loses its Why:/Evidence: source. See issue #733.
+    const personas = [
+      "ce-correctness-reviewer",
+      "ce-testing-reviewer",
+      "ce-maintainability-reviewer",
+      "ce-project-standards-reviewer",
+      "ce-security-reviewer",
+      "ce-performance-reviewer",
+      "ce-api-contract-reviewer",
+      "ce-data-migrations-reviewer",
+      "ce-reliability-reviewer",
+      "ce-adversarial-reviewer",
+      "ce-previous-comments-reviewer",
+      "ce-dhh-rails-reviewer",
+      "ce-kieran-rails-reviewer",
+      "ce-kieran-python-reviewer",
+      "ce-kieran-typescript-reviewer",
+      "ce-julik-frontend-races-reviewer",
+      "ce-swift-ios-reviewer",
+    ]
+
+    for (const persona of personas) {
+      const content = await readRepoFile(`plugins/compound-engineering/agents/${persona}.agent.md`)
+      const parsed = parseFrontmatter(content)
+      const tools = String(parsed.data.tools ?? "")
+
+      expect(tools).toContain("Write")
+    }
+  })
+
   test("leaves data-migration-expert as the unstructured review format", async () => {
     const content = await readRepoFile(
       "plugins/compound-engineering/agents/ce-data-migration-expert.agent.md",
@@ -600,9 +643,9 @@ describe("ce-code-review contract", () => {
 
     // Branch and standalone modes delegate to resolve-base.sh and check its ERROR: output.
     // The script itself emits ERROR: when the base is unresolved.
-    expect(content).toContain("references/resolve-base.sh")
+    expect(content).toContain("scripts/resolve-base.sh")
     const resolveScript = await readRepoFile(
-      "plugins/compound-engineering/skills/ce-code-review/references/resolve-base.sh",
+      "plugins/compound-engineering/skills/ce-code-review/scripts/resolve-base.sh",
     )
     expect(resolveScript).toContain("ERROR:")
 
@@ -698,7 +741,45 @@ describe("ce-code-review contract", () => {
   test("ce-code-review autofix emits a residual-work summary in-chat, not only in the artifact", async () => {
     const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
     expect(content).toMatch(/Emit a compact Residual Actionable Work summary/)
+    expect(content).toContain("with its stable `#`, severity, file:line, title, and autofix_class")
+    expect(content).toContain("Structure the summary as two separate contiguous sections")
+    expect(content).toContain("applied `safe_auto` fixes first, then residual non-auto findings")
+    expect(content).toContain("reuse each finding's stable `#` from Stage 5 -- never renumber")
     expect(content).toContain("Residual actionable work: none.")
+  })
+
+  test("ce-code-review uses stable sequential finding numbers across grouped output", async () => {
+    const content = await readRepoFile("plugins/compound-engineering/skills/ce-code-review/SKILL.md")
+    const template = await readRepoFile(
+      "plugins/compound-engineering/skills/ce-code-review/references/review-output-template.md",
+    )
+    const fixture = await readRepoFile("tests/fixtures/ce-code-review-stable-numbering.md")
+
+    const stage5 = content.split("### Stage 5b:")[0].split("### Stage 5:")[1]
+    expect(stage5).toMatch(/Sort and number/)
+    expect(stage5).toMatch(/Do not restart numbering inside each severity table or autofix\/routing bucket/)
+    expect(stage5).toMatch(/reuse the same stable `#`/)
+    expect(stage5).toMatch(/ce-resolve-pr-feedback/)
+
+    const stage6 = content.split("### Headless output format")[0].split("### Stage 6: Synthesize and present")[1]
+    expect(stage6).toContain("Finding numbers come from the stable assignment in Stage 5")
+    expect(stage6).toContain("never re-derive them per severity table")
+    expect(template).toContain("Stable sequential finding numbers")
+    expect(template).toContain("reuse those same numbers when findings are repeated in Residual Actionable Work")
+
+    const primaryFindingIds = Array.from(
+      fixture.matchAll(/^\| (\d+) \| `[^`]+` \| .* \| .* \| \d+ \| `.*` \|$/gm),
+      ([, id]) => Number(id),
+    )
+    expect(primaryFindingIds).toEqual([1, 2, 3])
+
+    const residualSection = fixture.split("### Residual Actionable Work")[1]
+    const residualIds = Array.from(
+      residualSection.matchAll(/^\| (\d+) \| `[^`]+` \| .* \| `.*` \| .* \|$/gm),
+      ([, id]) => Number(id),
+    )
+    expect(residualIds).toEqual([2, 3])
+    expect(residualIds.every((id) => primaryFindingIds.includes(id))).toBe(true)
   })
 })
 

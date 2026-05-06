@@ -13,21 +13,25 @@ describe("ce-work review contract", () => {
     const shipping = await readRepoFile("plugins/compound-engineering/skills/ce-work/references/shipping-workflow.md")
 
     // SKILL.md should not contain extracted content
-    expect(content).not.toContain("2. **Code Review**")
+    expect(content).not.toContain("3. **Code Review**")
     expect(content).not.toContain("Consider Code Review")
     expect(content).not.toContain("Code Review** (Optional)")
 
-    // Phase 3 has a mandatory code review step in the reference file
-    expect(shipping).toContain("2. **Code Review**")
+    // Phase 3 has a Claude-Code-only Simplify step at position 2 (gated on >=30 LOC)
+    // and a mandatory code review at position 3
+    expect(shipping).toContain("2. **Simplify**")
+    expect(shipping).toContain("Claude Code only")
+    expect(shipping).toContain("3. **Code Review**")
 
-    // Two-tier rubric in reference file
-    expect(shipping).toContain("**Tier 1: Inline self-review**")
-    expect(shipping).toContain("**Tier 2: Full review (default)**")
+    // Two-tier rubric in reference file: Tier 1 is harness-native (default),
+    // Tier 2 is ce-code-review (risk-based escalation)
+    expect(shipping).toContain("**Tier 1 -- harness-native code review (default).**")
+    expect(shipping).toContain("**Tier 2 -- `ce-code-review` (escalation).**")
     expect(shipping).toContain("ce-code-review")
     expect(shipping).toContain("mode:autofix")
 
     // Quality checklist includes review
-    expect(shipping).toContain("Code review completed (inline self-review or full `ce-code-review`)")
+    expect(shipping).toContain("Code review completed (Tier 1 harness-native or Tier 2 `ce-code-review`)")
   })
 
   test("delegates commit and PR to dedicated skills", async () => {
@@ -48,8 +52,10 @@ describe("ce-work review contract", () => {
     // Review/commit content extracted to references/shipping-workflow.md
     const shipping = await readRepoFile("plugins/compound-engineering/skills/ce-work-beta/references/shipping-workflow.md")
 
-    // Extracted content in reference file
-    expect(shipping).toContain("2. **Code Review**")
+    // Extracted content in reference file: Simplify step at position 2,
+    // Code Review at position 3
+    expect(shipping).toContain("2. **Simplify**")
+    expect(shipping).toContain("3. **Code Review**")
     expect(shipping).toContain("`ce-commit-push-pr` skill")
     expect(shipping).toContain("`ce-commit` skill")
 
@@ -110,7 +116,7 @@ describe("ce-work review contract", () => {
     expect(content).toContain("`references/shipping-workflow.md`")
 
     // Extracted content is not in SKILL.md
-    expect(content).not.toContain("2. **Code Review**")
+    expect(content).not.toContain("3. **Code Review**")
     expect(content).not.toContain("## Quality Checklist")
     expect(content).not.toContain("## Code Review Tiers")
   })
@@ -122,7 +128,7 @@ describe("ce-work review contract", () => {
     expect(content).toContain("`references/shipping-workflow.md`")
 
     // Extracted content is not in SKILL.md
-    expect(content).not.toContain("2. **Code Review**")
+    expect(content).not.toContain("3. **Code Review**")
     expect(content).not.toContain("## Quality Checklist")
     expect(content).not.toContain("## Code Review Tiers")
   })
@@ -330,24 +336,39 @@ describe("ce-plan review contract", () => {
     expect(content).toContain("Document review is mandatory")
   })
 
-  test("uses headless mode in pipeline context", async () => {
+  test("uses headless mode by default and in pipeline context", async () => {
     const content = await readRepoFile("plugins/compound-engineering/skills/ce-plan/references/plan-handoff.md")
 
-    // Pipeline mode runs document-review headlessly, not skipping it
+    // Default at Phase 5.3.8 is `mode:headless` so users opt into deeper interactive review
+    // explicitly from the post-generation menu rather than being forced through it.
     expect(content).toContain("ce-doc-review` with `mode:headless`")
     expect(content).not.toContain("skip document-review and return control")
+
+    // The interactive walkthrough is opt-in via the post-generation menu, not automatic
+    expect(content).toContain("Run deeper doc review")
   })
 
-  test("handoff options recommend ce-work after review", async () => {
+  test("handoff options expose deeper-review opt-in alongside ce-work", async () => {
     const content = await readRepoFile("plugins/compound-engineering/skills/ce-plan/references/plan-handoff.md")
 
-    // ce-work is recommended (review already happened)
+    // ce-work remains the recommended next-stage action (planning is done; review already ran)
     expect(content).toContain("**Start `/ce-work`** (recommended) - Begin implementing this plan in the current session")
 
-    // Additional review passes are surfaced contextually (not as a menu fixture) and still
-    // route through the ce-doc-review skill when requested
-    expect(content).toContain("Surface additional document review contextually")
-    expect(content).toContain("Load the `ce-doc-review` skill")
+    // Deeper review is a first-class menu fixture so users can engage with surfaced findings
+    // without relying on free-form prompting; routed through ce-doc-review without headless mode.
+    expect(content).toContain("**Run deeper doc review**")
+    expect(content).toContain("`ce-doc-review`")
+    expect(content).toContain("without** `mode:headless`")
+
+    // Deeper-review menu fixture is hidden when no actionable findings remain so the menu
+    // collapses back to a 4-option AskUserQuestion-friendly shape on Claude Code. FYI-only
+    // state also hides the option since ce-doc-review's walkthrough is gated to actionable
+    // findings (anchor 75/100, gated_auto/manual) and FYIs (anchor 50) bypass it.
+    expect(content).toContain("Hide `Run deeper doc review` when no actionable findings remain")
+    expect(content).toContain("proposed_fixes_count + decisions_count > 0")
+
+    // Summary line above the menu surfaces autofix counts and remaining-bucket counts
+    expect(content).toContain("Summary line above the menu")
 
     // No conditional ordering based on plan depth (review already ran)
     expect(content).not.toContain("**Options when ce-doc-review is recommended:**")

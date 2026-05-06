@@ -32,6 +32,27 @@ All tokens are optional. Each one present means one less thing to infer. When ab
 
 **Conflicting mode flags:** If multiple mode tokens appear in arguments, stop and do not dispatch agents. If `mode:headless` is one of the conflicting tokens, emit the headless error envelope: `Review failed (headless mode). Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.` Otherwise emit the generic form: `Review failed. Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.`
 
+## Quick Review Short-Circuit
+
+If `$ARGUMENTS` indicates the user wants a quick, fast, or light code review, do not dispatch the multi-agent flow.
+
+**Announce the chosen path** before any other work (Quick review vs Multi-agent review).
+
+Programmatic callers (when `mode:autofix`, `mode:report-only`, or `mode:headless` is present) skip this announcement -- the orchestrator owns user-facing messaging.
+
+Sequence:
+
+1. **Run the harness's built-in code review.** If `$ARGUMENTS` contained a review target (PR number, GitHub URL, or branch name) after stripping recognized tokens, forward that target to the built-in. If no target was provided, run the bare command and let the built-in default to the current branch.
+   - If you are Claude Code, run the `/review` tool, passing the target if present (e.g., `/review 123`, `/review <PR-URL>`, `/review <branch>`); otherwise run bare `/review`.
+   - If you are Gemini, run a quick code review against the resolved target (or the current branch when none was provided).
+   - For all other coding harnesses, run your built-in code review tool, forwarding the target when its syntax accepts one.
+
+   Then stop. Do not dispatch the multi-agent reviewer pipeline.
+
+2. **Exemption -- no built-in code review exists.** If the current harness has no built-in code review command or skill, do not short-circuit. Continue into the full multi-agent review described in the rest of this skill (Tier 2).
+
+3. **Programmatic callers bypass this short-circuit.** When `mode:autofix`, `mode:report-only`, or `mode:headless` is present, ignore quick intent and run the full multi-agent review. Skill-to-skill callers that want the lightweight pass should invoke `/review` (or the harness equivalent) directly rather than route through this short-circuit.
+
 ## Mode Detection
 
 | Mode | When | Behavior |
@@ -46,7 +67,7 @@ All tokens are optional. Each one present means one less thing to infer. When ab
 - **Skip all user questions.** Never pause for approval or clarification once scope has been established.
 - **Apply only `safe_auto -> review-fixer` findings.** Leave `gated_auto`, `manual`, `human`, and `release` work unresolved.
 - **Write a run artifact** under `/tmp/compound-engineering/ce-code-review/<run-id>/` summarizing findings, applied fixes, residual actionable work, and advisory outputs. Orchestrators read this artifact to route residual `downstream-resolver` findings; the skill itself does not file tickets or prompt the user in autofix.
-- **Emit a compact Residual Actionable Work summary in the autofix return** listing each residual `downstream-resolver` finding with severity, file:line, title, and autofix_class. Include the run-artifact path. Callers read this summary directly without parsing the artifact. When no residuals exist, state `Residual actionable work: none.` explicitly.
+- **Emit a compact Residual Actionable Work summary in the autofix return** listing each residual `downstream-resolver` finding with its stable `#`, severity, file:line, title, and autofix_class. Structure the summary as two separate contiguous sections: applied `safe_auto` fixes first, then residual non-auto findings. Within the residual section, reuse each finding's stable `#` from Stage 5 -- never renumber. Include the run-artifact path. Callers read this summary directly without parsing the artifact. When no residuals exist, state `Residual actionable work: none.` explicitly.
 - **Never commit, push, or create a PR** from autofix mode. Parent workflows own those decisions.
 
 ### Report-only mode rules
@@ -129,7 +150,6 @@ Routing rules:
 | `ce-data-migrations-reviewer` | Migrations, schema changes, backfills |
 | `ce-reliability-reviewer` | Error handling, retries, timeouts, background jobs |
 | `ce-adversarial-reviewer` | Diff >=50 changed non-test/non-generated/non-lockfile lines, or auth, payments, data mutations, external APIs |
-| `ce-cli-readiness-reviewer` | CLI command definitions, argument parsing, CLI framework usage, command handler implementations |
 | `ce-previous-comments-reviewer` | Reviewing a PR that has existing review comments or threads |
 
 **Stack-specific conditional (selected per diff):**
@@ -272,10 +292,10 @@ If the output is non-empty, inform the user: "You have uncommitted changes on th
 git checkout <branch>
 ```
 
-Then detect the review base branch and compute the merge-base. Run the `references/resolve-base.sh` script, which handles fork-safe remote resolution with multi-fallback detection (PR metadata -> `origin/HEAD` -> `gh repo view` -> common branch names):
+Then detect the review base branch and compute the merge-base. Run the `scripts/resolve-base.sh` script, which handles fork-safe remote resolution with multi-fallback detection (PR metadata -> `origin/HEAD` -> `gh repo view` -> common branch names):
 
 ```
-RESOLVE_OUT=$(bash references/resolve-base.sh) || { echo "ERROR: resolve-base.sh failed"; exit 1; }
+RESOLVE_OUT=$(bash scripts/resolve-base.sh) || { echo "ERROR: resolve-base.sh failed"; exit 1; }
 if [ -z "$RESOLVE_OUT" ] || echo "$RESOLVE_OUT" | grep -q '^ERROR:'; then echo "${RESOLVE_OUT:-ERROR: resolve-base.sh produced no output}"; exit 1; fi
 BASE=$(echo "$RESOLVE_OUT" | sed 's/^BASE://')
 ```
@@ -292,10 +312,10 @@ You may still fetch additional PR metadata with `gh pr view` for title, body, li
 
 **If no argument (standalone on current branch):**
 
-Detect the review base branch and compute the merge-base using the same `references/resolve-base.sh` script as branch mode:
+Detect the review base branch and compute the merge-base using the same `scripts/resolve-base.sh` script as branch mode:
 
 ```
-RESOLVE_OUT=$(bash references/resolve-base.sh) || { echo "ERROR: resolve-base.sh failed"; exit 1; }
+RESOLVE_OUT=$(bash scripts/resolve-base.sh) || { echo "ERROR: resolve-base.sh failed"; exit 1; }
 if [ -z "$RESOLVE_OUT" ] || echo "$RESOLVE_OUT" | grep -q '^ERROR:'; then echo "${RESOLVE_OUT:-ERROR: resolve-base.sh produced no output}"; exit 1; fi
 BASE=$(echo "$RESOLVE_OUT" | sed 's/^BASE://')
 ```
@@ -354,7 +374,7 @@ Locate the plan document so Stage 6 can verify requirements completeness. Check 
 - Multiple/ambiguous PR body matches -> `plan_source: inferred` (lower confidence)
 - Auto-discover with single unambiguous match -> `plan_source: inferred` (lower confidence)
 
-If a plan is found, read its **Requirements** section — `## Requirements` in current plans, `## Requirements Trace` in legacy ones — and the R-IDs (R1, R2, etc.) listed there, plus **Implementation Units** (items listed under the `## Implementation Units` section). Store the extracted requirements list and `plan_source` for Stage 6. Do not block the review if no plan is found — requirements verification is additive, not required.
+If a plan is found, read its **Requirements** section — `## Requirements` in current plans, `## Requirements Trace` in legacy ones — and the R-IDs (R1, R2, etc.) listed there, plus **Implementation Units** (current numeric subsections such as `### U1.`, `### U2.`, or `### Unit 1:` under `## Implementation Units`; legacy bullet or checkbox unit entries under that section also count). Store the extracted requirements list and `plan_source` for Stage 6. Do not block the review if no plan is found — requirements verification is additive, not required.
 
 ### Stage 3: Select reviewers
 
@@ -530,7 +550,7 @@ Demotion is intentionally narrow. The conservative scope (testing/maintainabilit
    - in-skill fixer queue: only `safe_auto -> review-fixer`
    - residual actionable queue: unresolved `gated_auto` or `manual` findings whose owner is `downstream-resolver`
    - report-only queue: `advisory` findings plus anything owned by `human` or `release`
-9. **Sort.** Order by severity (P0 first) -> anchor (descending) -> file path -> line number.
+9. **Sort and number.** Order by severity (P0 first) -> anchor (descending) -> file path -> line number, then assign monotonically increasing `#` values across the full primary finding set in that sorted order. Do not restart numbering inside each severity table or autofix/routing bucket. If later sections repeat a finding (for example Residual Actionable Work after `safe_auto` fixes are applied), reuse the same stable `#` so users -- and downstream skills like `ce-resolve-pr-feedback` -- can reference findings by `#` after the autofix loop rewrites the report. Renumbering after autofix invalidates any prior reference: copied snippets, follow-up prompts citing `#3`, or tickets filed against an earlier render.
 10. **Collect coverage data.** Union residual_risks and testing_gaps across reviewers.
 11. **Preserve CE agent artifacts.** Keep the learnings, agent-native, schema-drift, and deployment-verification outputs alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
 
@@ -580,10 +600,10 @@ When Stage 5b does not run, the merged finding set from Stage 5 flows through to
 Assemble the final report using **pipe-delimited markdown tables for findings** from the review output template included below. The table format is mandatory for finding rows in interactive mode — do not render findings as freeform text blocks or horizontal-rule-separated prose. Other report sections (Applied Fixes, Learnings, Coverage, etc.) use bullet lists and the `---` separator before the verdict, as shown in the template.
 
 1. **Header.** Scope, intent, mode, reviewer team with per-conditional justifications.
-2. **Findings.** Rendered as pipe-delimited tables grouped by severity (`### P0 -- Critical`, `### P1 -- High`, `### P2 -- Moderate`, `### P3 -- Low`). Each finding row shows `#`, file, issue, reviewer(s), confidence, and synthesized route. Omit empty severity levels. Never render findings as freeform text blocks or numbered lists.
+2. **Findings.** Rendered as pipe-delimited tables grouped by severity (`### P0 -- Critical`, `### P1 -- High`, `### P2 -- Moderate`, `### P3 -- Low`). Each finding row shows `#`, file, issue, reviewer(s), confidence, and synthesized route. Omit empty severity levels. Never render findings as freeform text blocks or numbered lists. Finding numbers come from the stable assignment in Stage 5 -- never re-derive them per severity table.
 3. **Requirements Completeness.** Include only when a plan was found in Stage 2b. For each requirement (R1, R2, etc.) and implementation unit in the plan, report whether corresponding work appears in the diff. Use a simple checklist: met / not addressed / partially addressed. Routing depends on `plan_source`:
-   - **`explicit`** (caller-provided or PR body): Flag unaddressed requirements as P1 findings with `autofix_class: manual`, `owner: downstream-resolver`. These enter the residual actionable queue.
-   - **`inferred`** (auto-discovered): Flag unaddressed requirements as P3 findings with `autofix_class: advisory`, `owner: human`. These stay in the report only — no autonomous follow-up. An inferred plan match is a hint, not a contract.
+   - **`explicit`** (caller-provided or PR body): Flag unaddressed requirements or implementation units as P1 findings with `autofix_class: manual`, `owner: downstream-resolver`. These enter the residual actionable queue.
+   - **`inferred`** (auto-discovered): Flag unaddressed requirements or implementation units as P3 findings with `autofix_class: advisory`, `owner: human`. These stay in the report only — no autonomous follow-up. An inferred plan match is a hint, not a contract.
    Omit this section entirely when no plan was found — do not mention the absence of a plan.
 4. **Applied Fixes.** Include only if a fix phase ran in this invocation.
 5. **Residual Actionable Work.** Include when unresolved actionable findings were handed off or should be handed off.
@@ -593,7 +613,7 @@ Assemble the final report using **pipe-delimited markdown tables for findings** 
 9. **Schema Drift Check.** If ce-schema-drift-detector ran, summarize whether drift was found. If drift exists, list the unrelated schema objects and the required cleanup command. If clean, say so briefly.
 10. **Deployment Notes.** If ce-deployment-verification-agent ran, surface the key Go/No-Go items: blocking pre-deploy checks, the most important verification queries, rollback caveats, and monitoring focus areas. Keep the checklist actionable rather than dropping it into Coverage.
 11. **Coverage.** Suppressed count by anchor (e.g., "N findings suppressed at anchor 50, M at anchor 25"), mode-aware demotion count (interactive/report-only) or suppression count (headless/autofix), validator drop count and reasons (when Stage 5b ran), validator over-budget drops (when the 15-cap fired), residual risks, testing gaps, failed/timed-out reviewers, and any intent uncertainty carried by non-interactive modes.
-12. **Verdict.** Ready to merge / Ready with fixes / Not ready. Fix order if applicable. When an `explicit` plan has unaddressed requirements, the verdict must reflect it — a PR that's code-clean but missing planned requirements is "Not ready" unless the omission is intentional. When an `inferred` plan has unaddressed requirements, note it in the verdict reasoning but do not block on it alone.
+12. **Verdict.** Ready to merge / Ready with fixes / Not ready. Fix order if applicable. When an `explicit` plan has unaddressed requirements or implementation units, the verdict must reflect it — a PR that's code-clean but missing planned requirements is "Not ready" unless the omission is intentional. When an `inferred` plan has unaddressed requirements or implementation units, note it in the verdict reasoning but do not block on it alone.
 
 Do not include time estimates.
 
