@@ -9,6 +9,29 @@ All notable changes to the compound-engineering plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.3](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.9.2...compound-engineering-v3.9.3) (2026-05-28)
+
+
+### Bug Fixes
+
+* **ce-plan:** honor explicit external-research requests and route them by intent ([#875](https://github.com/EveryInc/compound-engineering-plugin/issues/875)) ([b3e396d](https://github.com/EveryInc/compound-engineering-plugin/commit/b3e396d0bfd7be0c672cb7193a5cfa40675e6979))
+* **ce-sessions:** emit repo root path instead of basename subshell ([#873](https://github.com/EveryInc/compound-engineering-plugin/issues/873)) ([253dba8](https://github.com/EveryInc/compound-engineering-plugin/commit/253dba80dd08c111edae3f7fdc8fac998ec0d5cb))
+
+## [3.9.2](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.9.1...compound-engineering-v3.9.2) (2026-05-27)
+
+
+### Bug Fixes
+
+* **ce-brainstorm,ce-plan:** add conceptual-diagram affordance to brainstorm docs ([#871](https://github.com/EveryInc/compound-engineering-plugin/issues/871)) ([e5e3fc3](https://github.com/EveryInc/compound-engineering-plugin/commit/e5e3fc3630c026ae0eae6637d8b7a342af862e66))
+
+## [3.9.1](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.9.0...compound-engineering-v3.9.1) (2026-05-27)
+
+
+### Bug Fixes
+
+* **ce-brainstorm,ce-plan:** restore default-on requirements grouping ([#868](https://github.com/EveryInc/compound-engineering-plugin/issues/868)) ([5c88212](https://github.com/EveryInc/compound-engineering-plugin/commit/5c88212c1fd310d27033e7e8508e782e1f19cfdc))
+* **html-rendering:** constrain measure and surface execution notes ([#870](https://github.com/EveryInc/compound-engineering-plugin/issues/870)) ([1051132](https://github.com/EveryInc/compound-engineering-plugin/commit/1051132d04153c3045fc4c929cff32882c6934fe))
+
 ## [3.9.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.8.4...compound-engineering-v3.9.0) (2026-05-26)
 
 
