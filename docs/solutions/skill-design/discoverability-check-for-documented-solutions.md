@@ -141,6 +141,6 @@ This file delegates entirely to `AGENTS.md`. The discoverability note belongs in
 
 ## Related
 
-- [#111](https://github.com/EveryInc/compound-engineering-plugin/issues/111) — Enhancement: Add project scaffolding for `docs/solutions/` schema + agentic feedback loops. The discoverability check is a lighter-weight partial solution to this issue's "medium-term" suggestion of making ce:compound check for scaffolding.
+- [#111](https://github.com/EveryInc/compound-engineering-plugin/issues/111) — Enhancement: Add project scaffolding for `docs/solutions/` schema + agentic feedback loops. The discoverability check is a lighter-weight partial solution to this issue's "medium-term" suggestion of making ce-compound check for scaffolding.
 - [#171](https://github.com/EveryInc/compound-engineering-plugin/issues/171) — Closed-Loop Self-Improvement System. The discoverability check helps close part of this loop by ensuring agents can find `docs/solutions/` content.
-- `docs/solutions/skill-design/compound-refresh-skill-improvements.md` — Documents the ce:compound-refresh skill redesign. The discoverability check adds a new step to that skill's workflow.
+- `docs/solutions/skill-design/compound-refresh-skill-improvements.md` — Documents the ce-compound-refresh skill redesign. The discoverability check adds a new step to that skill's workflow.

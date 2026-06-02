@@ -54,5 +54,5 @@ Before extracting a block to a reference file, ask:
 
 ## Related Patterns
 
-- `docs/solutions/skill-design/git-workflow-skills-need-explicit-state-machines-2026-03-27.md` — same family: skills that render decision points need their state transitions to be deterministic in the loaded context, not one reference-load away.
-- `docs/solutions/skill-design/confidence-anchored-scoring-2026-04-21.md` — load-bearing scoring rubrics also belong inline in SKILL.md so they fire reliably across sessions.
+- `docs/solutions/skill-design/git-workflow-skills-need-explicit-state-machines.md` — same family: skills that render decision points need their state transitions to be deterministic in the loaded context, not one reference-load away.
+- `docs/solutions/skill-design/confidence-anchored-scoring.md` — load-bearing scoring rubrics also belong inline in SKILL.md so they fire reliably across sessions.

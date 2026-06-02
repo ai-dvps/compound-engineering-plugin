@@ -215,7 +215,7 @@ Concrete guidance for any skill that generates documents with visual aids:
 
 ## Related Issues
 
-- `docs/solutions/skill-design/git-workflow-skills-need-explicit-state-machines-2026-03-27.md` -- related but distinct: covers git-commit-push-pr state machine correctness, not output content quality
+- `docs/solutions/skill-design/git-workflow-skills-need-explicit-state-machines.md` -- related but distinct: covers git-commit-push-pr state machine correctness, not output content quality
 - GitHub issue #44 -- mermaid dark mode rendering, relevant when considering diagram styling
 - PR #437 -- ce:brainstorm visual aids implementation
 - PR #440 -- ce:plan visual aids implementation

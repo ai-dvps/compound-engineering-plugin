@@ -105,4 +105,4 @@ Into:
 ## Related Issues
 
 - [PR #395](https://github.com/EveryInc/compound-engineering-plugin/pull/395): Added `plugin-path` command and initial shell alias examples that this learning fixes
-- [branch-based-plugin-install-and-testing-2026-03-26.md](../developer-experience/branch-based-plugin-install-and-testing-2026-03-26.md): Predecessor doc that introduced the branch-based workflow; the aliases documented here are the corrected versions
+- [branch-based-plugin-install-and-testing.md](../developer-experience/branch-based-plugin-install-and-testing.md): Predecessor doc that introduced the branch-based workflow; the aliases documented here are the corrected versions

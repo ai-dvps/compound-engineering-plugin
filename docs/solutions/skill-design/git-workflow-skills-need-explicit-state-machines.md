@@ -2,7 +2,7 @@
 title: "Git workflow skills need explicit state machines for branch, push, and PR state"
 category: skill-design
 date: 2026-03-27
-module: plugins/compound-engineering/skills/git-commit and git-commit-push-pr
+module: plugins/compound-engineering/skills/ce-commit and ce-commit-push-pr
 problem_type: architecture_pattern
 component: tooling
 symptoms:
@@ -27,7 +27,7 @@ tags:
 
 ## Problem
 
-The `git-commit` and `git-commit-push-pr` skills had accumulated branch-state and PR-state bugs because they described Git flow in broad prose instead of modeling the workflow as a sequence of explicit state checks. Small wording changes kept introducing regressions around detached HEAD, untracked files, upstream detection, default-branch pushes, and PR lookup.
+The `ce-commit` and `ce-commit-push-pr` skills had accumulated branch-state and PR-state bugs because they described Git flow in broad prose instead of modeling the workflow as a sequence of explicit state checks. Small wording changes kept introducing regressions around detached HEAD, untracked files, upstream detection, default-branch pushes, and PR lookup.
 
 ## Symptoms
 
@@ -123,7 +123,7 @@ If the current branch is `main`, `master`, or the resolved default branch, and t
 
 - ask whether to create a feature branch first
 - if the user agrees, create the branch and re-read the branch name
-- if the user declines in `git-commit-push-pr`, stop rather than trying to open a PR from the default branch
+- if the user declines in `ce-commit-push-pr`, stop rather than trying to open a PR from the default branch
 
 This prevents "push default branch, then attempt impossible PR flow" behavior.
 
@@ -143,7 +143,7 @@ This turns a brittle narrative into a deterministic control flow with a small nu
 
 ## Edge Cases We Hit While Fixing This
 
-These were not hypothetical concerns. Each one showed up while revising `git-commit` and `git-commit-push-pr`, and several "fixes" introduced a new bug one step later in the flow.
+These were not hypothetical concerns. Each one showed up while revising `ce-commit` and `ce-commit-push-pr`, and several "fixes" introduced a new bug one step later in the flow.
 
 ### 1. Detached HEAD can reappear as a later bug even after it seems "handled"
 
@@ -203,7 +203,7 @@ Learning: every path that can lead to push or PR creation must pass through a de
 
 One fix asked the user whether to create a feature branch first when clean-tree logic found unpushed default-branch commits. But if the user declined, the workflow still continued to push and then attempt PR creation. That leads to an impossible "open a PR from the default branch to itself" situation.
 
-Learning: in `git-commit-push-pr`, declining feature-branch creation on the default branch is a stop condition, not a continue condition.
+Learning: in `ce-commit-push-pr`, declining feature-branch creation on the default branch is a stop condition, not a continue condition.
 
 ### 9. Clean-working-tree shortcuts interact with branch safety, PR state, and upstream state all at once
 
@@ -251,5 +251,5 @@ Learning: these skills should be designed and reviewed like tiny state machines,
 
 ## Related Issues
 
-- [docs/solutions/skill-design/script-first-skill-architecture.md](/Users/tmchow/conductor/workspaces/compound-engineering-plugin/miami-v2/docs/solutions/skill-design/script-first-skill-architecture.md)
-- [docs/solutions/skill-design/pass-paths-not-content-to-subagents-2026-03-26.md](/Users/tmchow/conductor/workspaces/compound-engineering-plugin/miami-v2/docs/solutions/skill-design/pass-paths-not-content-to-subagents-2026-03-26.md)
+- [script-first-skill-architecture.md](script-first-skill-architecture.md)
+- [pass-paths-not-content-to-subagents.md](pass-paths-not-content-to-subagents.md)

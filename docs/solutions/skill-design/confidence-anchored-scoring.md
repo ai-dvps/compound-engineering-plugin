@@ -59,7 +59,7 @@ Within-severity sort: anchor descending, then document order as the deterministi
 - `plugins/compound-engineering/skills/ce-doc-review/references/findings-schema.json` — `confidence` is an integer enum `[0, 25, 50, 75, 100]` with behavioral definitions embedded in the `description` field
 - `plugins/compound-engineering/skills/ce-doc-review/references/subagent-template.md` — the rubric section personas see verbatim, plus the consolidated false-positive catalog
 - `plugins/compound-engineering/skills/ce-doc-review/references/synthesis-and-presentation.md` — anchor-based gate in 3.2, anchor-step promotion in 3.4, anchor-sorted ordering in 3.8, anchor+autofix routing in 3.7
-- `plugins/compound-engineering/agents/document-review/*.agent.md` — each of the 7 personas carries a persona-specific calibration section that maps domain criteria to the shared anchors
+- `plugins/compound-engineering/agents/ce-*-reviewer.md` (the 7 doc-review personas, flat files) — each carries a persona-specific calibration section that maps domain criteria to the shared anchors
 - `tests/pipeline-review-contract.test.ts` — contract tests that assert the schema enforces discrete anchors and the template embeds the rubric
 
 ## Why the threshold diverges from Anthropic
@@ -147,7 +147,7 @@ The validator's protocol is `{ "validated": true | false, "reason": "<one senten
 
 ### Mode-aware false-positive demotion
 
-ce-code-review's broader persona surface (17 reviewers vs ce-doc-review's 7) means more weak general-quality signal. Stricter precision in externalizing modes was already accomplished by the higher threshold; for interactive mode, a different policy: route weak findings to existing soft buckets (`testing_gaps`, `residual_risks`, `advisory`) rather than suppress.
+ce-code-review's broader persona surface (~14 reviewers vs ce-doc-review's 7) means more weak general-quality signal. Stricter precision in externalizing modes was already accomplished by the higher threshold; for interactive mode, a different policy: route weak findings to existing soft buckets (`testing_gaps`, `residual_risks`, `advisory`) rather than suppress.
 
 The demotion rule is intentionally narrow: severity P2 or P3, `autofix_class` advisory, contributing reviewer is `testing` or `maintainability`. Headless and autofix suppress these entirely; interactive and report-only demote them to soft buckets where they remain visible without competing for primary-findings attention.
 
@@ -177,7 +177,7 @@ This avoids the wasted multi-agent review cost on PRs that should not be reviewe
 - `plugins/compound-engineering/skills/ce-code-review/references/subagent-template.md` — verbatim 5-anchor rubric with code-review framing, expanded false-positive catalog including lint-ignore rule, hard schema-conformance constraints rejecting floats
 - `plugins/compound-engineering/skills/ce-code-review/references/validator-template.md` — Stage 5b validator subagent prompt
 - `plugins/compound-engineering/skills/ce-code-review/SKILL.md` — Stage 5 anchor gate and one-anchor promotion (replaces `+0.10`), Stage 5 step 7c mode-aware demotion, Stage 5b validation pass with budget cap, Stage 1 PR-mode skip-condition pre-check, After-Review options B and C invoke validation before externalizing
-- `plugins/compound-engineering/agents/ce-*-reviewer.agent.md` — 18 personas updated from float bands to anchored language, preserving each persona's specific calibration signal
+- `plugins/compound-engineering/agents/ce-*-reviewer.md` — the code-review reviewer personas updated from float bands to anchored language, preserving each persona's specific calibration signal
 - `plugins/compound-engineering/skills/ce-code-review/references/review-output-template.md` — Confidence column renders as integer (`75`, `100`), not float
 - `tests/review-skill-contract.test.ts` — schema, synthesis, validation pass, skip-conditions, mode-aware demotion, and per-persona anchored-language assertions
 

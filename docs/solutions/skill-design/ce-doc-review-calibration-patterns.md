@@ -15,7 +15,7 @@ tags:
   - fyi-routing
   - calibration
 applies_when:
-  - Changing persona confidence calibration bands in `plugins/compound-engineering/agents/document-review/`
+  - Changing persona confidence calibration in the doc-review persona agents (flat `ce-*-reviewer.md` files under `plugins/compound-engineering/agents/`)
   - Modifying the synthesis pipeline in `plugins/compound-engineering/skills/ce-doc-review/references/synthesis-and-presentation.md`
   - Adjusting the subagent template's output contract in `references/subagent-template.md`
   - Adding or modifying seeded test fixtures under `tests/fixtures/ce-doc-review/`
@@ -34,7 +34,7 @@ The naive read of the tier spec says `safe_auto` = "one clear correct fix, appli
 
 When the document says `see Unit 7` and Unit 7 doesn't exist in the same document, that's an **internal** stale cross-reference — coherence can verify from the document text alone and apply `safe_auto`. When the document says `see docs/guides/keyboard-nav.md Section 4` and that file isn't verifiable from the document content, that's an **external** cross-reference; applying "delete this reference" silently risks masking a legitimate external doc. The reviewer should route these to `gated_auto` with a "verify before applying" fix, not `safe_auto`.
 
-Observed in: feature-plan fixture runs. The external cross-ref landed at P2 0.70 gated_auto with the fix "Verify docs/guides/keyboard-nav.md exists... If stale, either remove the reference or replace with inline guidance."
+Observed in: feature-plan fixture runs. The external cross-ref landed at P2 as `gated_auto` with the fix "Verify docs/guides/keyboard-nav.md exists... If stale, either remove the reference or replace with inline guidance."
 
 ### Multi-surface terminology drift → gated_auto (not safe_auto)
 
@@ -56,7 +56,7 @@ Apply symmetrically: check both directions before deciding. Example-based teachi
 
 ### Surviving root under nested — scope dominates confidence
 
-When nested, the surviving root is the one whose fix moots the other — **not** the higher-confidence candidate. In a rename plan, "rename premise unsupported" (0.82) dominates "alias machinery unjustified" (0.98) because rejecting the rename moots the alias entirely, while rejecting the alias still leaves the rename standing. Earlier synthesis picked the higher-confidence candidate as root, which stranded the broader-scope premise's natural dependents as independent findings.
+When nested, the surviving root is the one whose fix moots the other — **not** the higher-confidence candidate. In a rename plan, the broader-scope "rename premise unsupported" root dominates the higher-confidence "alias machinery unjustified" candidate, because rejecting the rename moots the alias entirely, while rejecting the alias still leaves the rename standing. Earlier synthesis picked the higher-confidence candidate as root, which stranded the broader-scope premise's natural dependents as independent findings.
 
 Confidence is for tie-breaking *among peers*, not for deciding which of two nested candidates dominates.
 
@@ -66,14 +66,14 @@ Synthesis defaults to picking a single root when multiple candidates match. A ph
 
 ## FYI routing requires band + template-level anchoring
 
-The FYI bucket (manual findings with confidence 0.40–0.65) stayed empty for initial calibration runs because personas had only two bands defined (HIGH ≥0.80, MODERATE 0.60–0.79) with "Suppress below 0.50." Advisory observations with no articulable consequence had nowhere to land — they were either promoted above gate (appearing as real decisions) or suppressed entirely.
+Advisory observations with no articulable consequence need somewhere to land, or they get either promoted above the gate (appearing as real decisions) or suppressed entirely. The FYI bucket gives them a home, but it stays empty unless two changes are made together:
 
-Two changes together populate the FYI bucket reliably:
-
-1. **Per-persona LOW (0.40–0.59) Advisory band** tailored to each persona's scope. Each of the 7 personas needs its own band; a single template-level rule doesn't override persona-specific calibrations.
+1. **Per-persona advisory band** tailored to each persona's scope. Each of the 7 personas needs its own band; a single template-level rule doesn't override persona-specific calibrations.
 2. **Template-level advisory rule** in `subagent-template.md`'s output-contract using the "what actually breaks if we don't fix this?" heuristic. Anchors the scoring decision when a persona's own rubric doesn't make the band's applicability obvious.
 
 Either alone is insufficient. Persona bands without the template rule produce inconsistent results across personas; the template rule without per-persona bands has nothing to calibrate against.
+
+> **Scoring model note:** This pattern predates the anchored-rubric migration. The original calibration used continuous float bands; scoring is now an anchored rubric (discrete `0/25/50/75/100`, with FYI = anchor `50`). See [confidence-anchored-scoring.md](./confidence-anchored-scoring.md) for the canonical scoring model. The band-plus-template structural insight above is independent of the numeric scale.
 
 ## Schema compliance requires inline enum callouts, not just `{schema}` injection
 
@@ -97,7 +97,7 @@ Across 7+ runs on the rename fixture, the same document produced user-engagement
 
 - **Adversarial reviewer activation** — the activation signals (requirement count, architectural decisions, high-stakes domain) produce non-deterministic decisions at borderline documents
 - **Root selection when multiple candidates exist** — even with scope-dominance guidance, the synthesizer's root choice varies across runs
-- **Confidence calibration on borderline findings** — the same finding lands in FYI on one run and manual on the next, because the reviewer scored 0.63 vs 0.68
+- **Confidence calibration on borderline findings** — the same finding lands in FYI on one run and manual on the next, because the reviewer's anchor choice flips at the boundary across runs
 
 **Testing implication:** validate calibration changes against multiple runs, not single samples. A single "bad" run is likely noise; a pattern across 3+ runs is signal. Seeded fixtures document expected tier distributions as targets, not as pass/fail assertions.
 
@@ -105,6 +105,6 @@ Across 7+ runs on the rename fixture, the same document produced user-engagement
 
 - `plugins/compound-engineering/skills/ce-doc-review/references/synthesis-and-presentation.md` — canonical synthesis pipeline spec, including 3.5c premise-dependency chain linking
 - `plugins/compound-engineering/skills/ce-doc-review/references/subagent-template.md` — output contract with schema conformance block and advisory routing rule
-- `plugins/compound-engineering/agents/document-review/` — the 7 persona agents with their confidence calibration bands
+- `plugins/compound-engineering/agents/` — the 7 doc-review persona agents (flat `ce-*-reviewer.md` files: `ce-coherence-reviewer.md`, `ce-feasibility-reviewer.md`, `ce-design-lens-reviewer.md`, `ce-security-lens-reviewer.md`, `ce-scope-guardian-reviewer.md`, `ce-product-lens-reviewer.md`, `ce-adversarial-document-reviewer.md`) with their confidence calibration bands
 - `tests/fixtures/ce-doc-review/` — three seeded fixtures (rename, auth, feature) for manual calibration testing; see each fixture's header comment for its specific seed map
-- `docs/solutions/developer-experience/branch-based-plugin-install-and-testing-2026-03-26.md` — how to run the skill from a branch checkout for testing
+- `docs/solutions/developer-experience/branch-based-plugin-install-and-testing.md` — how to run the skill from a branch checkout for testing

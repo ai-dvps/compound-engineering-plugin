@@ -80,7 +80,7 @@ Each converter uses the appropriate shared utility:
 | Copilot | Drop entirely | (omitted) |
 | Codex | Drop entirely | (omitted) |
 
-> **Note:** This doc was written when the converter set also included Qwen and OpenClaw, both of which used the "Resolve alias + add provider prefix" behavior. Both have since been removed in favor of native plugin install — see `docs/solutions/integrations/native-plugin-install-strategy-2026-04-19.md`. The pattern still applies to any future multi-provider target with the `provider/model-id` format.
+> **Note:** This doc was written when the converter set also included Qwen and OpenClaw, both of which used the "Resolve alias + add provider prefix" behavior. Both have since been removed in favor of native plugin install — see `docs/solutions/integrations/native-plugin-install-strategy.md`. The pattern still applies to any future multi-provider target with the `provider/model-id` format.
 
 ---
 
@@ -155,5 +155,5 @@ This reference captures research findings as of 2026-03-29. Targets marked **(re
 ## Related Issues
 
 - `docs/solutions/adding-converter-target-providers.md` — Converter architecture doc; should be updated to reference model normalization as part of the conversion pattern
-- `docs/solutions/integrations/colon-namespaced-names-break-windows-paths-2026-03-26.md` — Structural analog: same pattern of per-target boundary normalization
+- `docs/solutions/integrations/colon-namespaced-names-break-windows-paths.md` — Structural analog: same pattern of per-target boundary normalization
 - `docs/specs/codex.md` — Platform spec (last verified 2026-01-21); confirms skill frontmatter limitations

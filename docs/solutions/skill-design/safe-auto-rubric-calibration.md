@@ -153,7 +153,7 @@ All three reads are sampled from the same prompt pair on the same fixture. Only 
 
 Apply the variance-first lens when the eval is on synthetic fixtures (no ground-truth label), the rubric outputs into a small number of discrete buckets, or the change is motivated by an incident report claiming systematic mis-classification. The lens applies less when you have ground-truth labels (rate-shift against truth becomes meaningful) or when the rubric outputs free-text rather than a discrete bucket.
 
-A related precedent in this repo: [`docs/solutions/skill-design/ce-doc-review-calibration-patterns-2026-04-19.md`](./ce-doc-review-calibration-patterns-2026-04-19.md) has a "Reviewer variance is inherent; single runs aren't baselines" section warning the same thing, scoped to ce-doc-review's tier classification. The principle generalizes: any persona-rubric eval needs N≥3 minimum on cells where the rubric is plausibly ambiguous.
+A related precedent in this repo: [`docs/solutions/skill-design/ce-doc-review-calibration-patterns.md`](./ce-doc-review-calibration-patterns.md) has a "Reviewer variance is inherent; single runs aren't baselines" section warning the same thing, scoped to ce-doc-review's tier classification. The principle generalizes: any persona-rubric eval needs N≥3 minimum on cells where the rubric is plausibly ambiguous.
 
 ---
 
@@ -235,5 +235,5 @@ Skip or downscale when the change is purely textual (typo, link fix), gated behi
 
 - PR #685 — `fix(ce-code-review): replace LFG with best-judgment auto-resolve` (the suggested_fix push this builds on)
 - Issue #686 — the calibration request that prompted the eval
-- [`docs/solutions/skill-design/confidence-anchored-scoring-2026-04-21.md`](./confidence-anchored-scoring-2026-04-21.md) — prior art for eval-as-validation in this repo; established the A/B-against-baseline pattern this generalizes
-- [`docs/solutions/skill-design/ce-doc-review-calibration-patterns-2026-04-19.md`](./ce-doc-review-calibration-patterns-2026-04-19.md) — see the "Reviewer variance is inherent; single runs aren't baselines" section, which warns of the same N=1 trap scoped to ce-doc-review's tier classification
+- [`docs/solutions/skill-design/confidence-anchored-scoring.md`](./confidence-anchored-scoring.md) — prior art for eval-as-validation in this repo; established the A/B-against-baseline pattern this generalizes
+- [`docs/solutions/skill-design/ce-doc-review-calibration-patterns.md`](./ce-doc-review-calibration-patterns.md) — see the "Reviewer variance is inherent; single runs aren't baselines" section, which warns of the same N=1 trap scoped to ce-doc-review's tier classification
