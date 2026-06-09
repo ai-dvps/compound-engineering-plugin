@@ -10,7 +10,7 @@ const resolvePort = path.join(
   "plugins",
   "compound-engineering",
   "skills",
-  "ce-polish-beta",
+  "ce-polish",
   "scripts",
   "resolve-port.sh",
 )

@@ -10,7 +10,7 @@ const detectProjectType = path.join(
   "plugins",
   "compound-engineering",
   "skills",
-  "ce-polish-beta",
+  "ce-polish",
   "scripts",
   "detect-project-type.sh",
 )

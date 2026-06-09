@@ -10,7 +10,7 @@ const readLaunchJson = path.join(
   "plugins",
   "compound-engineering",
   "skills",
-  "ce-polish-beta",
+  "ce-polish",
   "scripts",
   "read-launch-json.sh",
 )
@@ -22,7 +22,7 @@ const detectProjectType = path.join(
   "plugins",
   "compound-engineering",
   "skills",
-  "ce-polish-beta",
+  "ce-polish",
   "scripts",
   "detect-project-type.sh",
 )

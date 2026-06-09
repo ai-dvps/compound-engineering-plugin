@@ -9,6 +9,46 @@ All notable changes to the compound-engineering plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.11.2](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.11.1...compound-engineering-v3.11.2) (2026-06-06)
+
+
+### Bug Fixes
+
+* **ce-resolve-pr-feedback:** fail loudly when repo auto-detection fails ([#908](https://github.com/EveryInc/compound-engineering-plugin/issues/908)) ([bb0c9ab](https://github.com/EveryInc/compound-engineering-plugin/commit/bb0c9ab4ee596d546f2965222e0ec8c2a097ae53))
+* **ce-resolve-pr-feedback:** prevent replies landing on wrong PR from GHE node ID mismatch ([#910](https://github.com/EveryInc/compound-engineering-plugin/issues/910)) ([6f9ab03](https://github.com/EveryInc/compound-engineering-plugin/commit/6f9ab03a031c054a8046659926251fb6c149269f))
+
+## [3.11.1](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.11.0...compound-engineering-v3.11.1) (2026-06-05)
+
+
+### Bug Fixes
+
+* reduce verbosity and remove HTML comments from generated docs ([#906](https://github.com/EveryInc/compound-engineering-plugin/issues/906)) ([debc915](https://github.com/EveryInc/compound-engineering-plugin/commit/debc915c5886a22c049e871304b7f991363e1155))
+
+## [3.11.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.10.0...compound-engineering-v3.11.0) (2026-06-04)
+
+
+### Features
+
+* **ce-plan:** approach-altitude plan-for-a-plan with ce-work non-code carve-out ([#905](https://github.com/EveryInc/compound-engineering-plugin/issues/905)) ([fbd0faf](https://github.com/EveryInc/compound-engineering-plugin/commit/fbd0fafd9358ab708b15fdc0030615525a0cd684))
+
+
+### Bug Fixes
+
+* **ce-polish:** promote from beta to stable ([#880](https://github.com/EveryInc/compound-engineering-plugin/issues/880)) ([63b6b26](https://github.com/EveryInc/compound-engineering-plugin/commit/63b6b260c345ba70ce9d9a393eeedefb64e4e0a0))
+
+## [3.10.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.9.4...compound-engineering-v3.10.0) (2026-06-03)
+
+
+### Features
+
+* **ce-promote:** add ce-promote skill for post-ship announcement copy ([#888](https://github.com/EveryInc/compound-engineering-plugin/issues/888)) ([0939187](https://github.com/EveryInc/compound-engineering-plugin/commit/09391874b4be1a248bc7d627b0ebd5c29f0c886b))
+* **skill:** introduce CONCEPTS.md as shared vocabulary substrate ([#838](https://github.com/EveryInc/compound-engineering-plugin/issues/838)) ([7c4bb16](https://github.com/EveryInc/compound-engineering-plugin/commit/7c4bb16123412d97ded593fc785d206ecb9684bc))
+
+
+### Bug Fixes
+
+* **ce-resolve-pr-feedback:** drop clustering, default to merit-based fixing ([#893](https://github.com/EveryInc/compound-engineering-plugin/issues/893)) ([3e77a7b](https://github.com/EveryInc/compound-engineering-plugin/commit/3e77a7bd8450fef7270f8b46c0f1865fd7125741))
+
 ## [3.9.4](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.9.3...compound-engineering-v3.9.4) (2026-05-31)
 
 

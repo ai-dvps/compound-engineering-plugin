@@ -76,7 +76,7 @@ Store the resolved state for downstream consumption:
 
 Determine how to proceed based on what was provided in `<input_document>`.
 
-**Plan document** (input is a file path to an existing plan or specification) → skip to Phase 1.
+**Plan document** (input is a file path to an existing plan or specification): read the plan's metadata first — YAML frontmatter for a markdown plan, or the visible header text for an HTML plan (both formats carry the same fields). If it carries `execution: knowledge-work`, this is a **non-code plan** — read `references/non-code-execution.md` and follow that carve-out instead of the rest of this workflow. Otherwise (the field is absent or `execution: code`) → skip to Phase 1 and run the normal code lifecycle. (The marker check lives here, inside plan-document handling, because detecting the marker requires already having a file; "Bare prompt" below is unaffected.)
 
 **Bare prompt** (input is a description of work, not a file path):
 
@@ -359,7 +359,7 @@ Determine how to proceed based on what was provided in `<input_document>`.
 
    Don't simplify after every single unit — early patterns may look duplicated but diverge intentionally in later units. Wait for a natural phase boundary or when you notice accumulated complexity.
 
-   If a `/simplify` skill or equivalent is available, use it. Otherwise, review the changed files yourself for reuse and consolidation opportunities.
+   If **`ce-simplify-code`** is available, invoke it at phase boundaries (especially before Phase 3 when the diff is >=30 lines). Otherwise, review the changed files yourself for reuse and consolidation opportunities.
 
 6. **Figma Design Sync** (if applicable)
 
@@ -422,7 +422,7 @@ When `delegation_active` is true after argument parsing, read `references/codex-
 - Follow existing patterns
 - Write tests for new code
 - Run linting before pushing
-- Review every change — inline for simple additive work, full review for everything else
+- Review when Tier 1 is available or Tier 2 criteria match (see `shipping-workflow.md`)
 
 ### Ship Complete Features
 
@@ -438,5 +438,5 @@ When `delegation_active` is true after argument parsing, read `references/codex-
 - **Testing at the end** - Test continuously or suffer later
 - **Forgetting to track progress** - Update task status as you go or lose track of what's done
 - **80% done syndrome** - Finish the feature, don't move on early
-- **Skipping review** - Every change gets reviewed; only the depth varies
+- **Skipping review without reason** — Use Tier 1 when available; escalate to Tier 2 only on criteria in `shipping-workflow.md`; document when both are skipped
 - **Re-scoping the plan into human-time phases** - The plan's Implementation Units define the scope of execution. Do not estimate human-hours per unit, propose multi-day breakdowns, or ask the user to pick a subset of units for "this session". Agents execute at agent speed, and context-window pressure is addressed by subagent dispatch (Phase 1 Step 4), not by phased sessions. If a plan-file input is genuinely too large for a single execution, say so plainly and suggest the user return to `/ce-plan` to reduce scope — don't invent session phases as a workaround. For bare-prompt input, Phase 0's Large routing already handles oversized work

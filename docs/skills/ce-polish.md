@@ -1,10 +1,10 @@
-# `ce-polish-beta`
+# `ce-polish`
 
 > Start the dev server, open the feature in a browser, and iterate together — you say what feels off, fixes happen.
 
-`ce-polish-beta` is the **conversational UX polish** skill. It auto-detects your dev-server setup (or reads `.claude/launch.json`), starts the server in the background, opens the feature in a browser via your IDE's preferred mechanism, and then enters a tight iteration loop: you describe something to fix, the change lands, hot-reload picks it up, repeat until you're happy. No checklist, no envelope — just conversation paired with a running browser.
+`ce-polish` is the **conversational UX polish** skill. It auto-detects your dev-server setup (or reads `.claude/launch.json`), starts the server in the background, opens the feature in a browser via your IDE's preferred mechanism, and then enters a tight iteration loop: you describe something to fix, the change lands, hot-reload picks it up, repeat until you're happy. No checklist, no envelope — just conversation paired with a running browser.
 
-This is a **beta** skill (`disable-model-invocation: true`). It only fires when you invoke it explicitly via slash command — no auto-trigger. The framework auto-detection is broad (Rails / Next / Vite / Nuxt / Astro / Remix / SvelteKit / Procfile), but the polish loop is intentionally minimal.
+This skill is **manual-invocation only** (`disable-model-invocation: true`). It only fires when you invoke it explicitly via slash command — never auto-triggered. Polish starts a dev server and runs the branch's code, so it stays a deliberate user choice. The framework auto-detection is broad (Rails / Next / Vite / Nuxt / Astro / Remix / SvelteKit / Procfile), but the polish loop is intentionally minimal.
 
 ---
 
@@ -15,7 +15,7 @@ This is a **beta** skill (`disable-model-invocation: true`). It only fires when 
 | What does it do? | Starts the dev server, opens the feature in a browser, iterates on UX/visual polish through conversation |
 | When to use it | Late-stage UX polish on a feature that already works; visual or interaction refinement that's hard to specify in advance |
 | What it produces | Committed fixes on the current branch (no PR by default — use `/ce-commit-push-pr` after) |
-| Status | Beta — invoke explicitly only |
+| Status | Stable — manual invocation only |
 
 ---
 
@@ -31,7 +31,7 @@ Late-stage UX polish doesn't fit other skills well:
 
 ## The Solution
 
-`ce-polish-beta` collapses the loop:
+`ce-polish` collapses the loop:
 
 - **Phase 0** picks the right branch (PR number, branch name, or current)
 - **Phase 1** starts the dev server (auto-detects framework or reads `.claude/launch.json`) and opens the feature in your IDE's preferred browser surface
@@ -67,15 +67,15 @@ That's not laziness — it's the right shape for late-stage polish. A fixed chec
 
 The dev server starts in the background with output logged to a temp file. The skill probes `http://localhost:<port>` for up to 30 seconds. If the server doesn't come up, it shows the last 20 lines of the log and asks what to do — instead of silently waiting or proceeding to a dead URL.
 
-### 6. Beta status — explicit invocation only
+### 6. Manual invocation only
 
-`disable-model-invocation: true` in the frontmatter prevents the skill from auto-triggering. Polish is a deliberate user choice — the skill only fires when you type `/ce-polish-beta` directly. This avoids surprising the user when they just wanted to look at a page.
+`disable-model-invocation: true` in the frontmatter prevents the skill from auto-triggering. Polish is a deliberate user choice — the skill only fires when you type `/ce-polish` directly. This avoids surprising the user when they just wanted to look at a page.
 
 ---
 
 ## Quick Example
 
-You've just finished a notification settings page. It works, but the spacing feels off, the toggle states aren't quite right, and the empty-state copy is dry. You invoke `/ce-polish-beta`.
+You've just finished a notification settings page. It works, but the spacing feels off, the toggle states aren't quite right, and the empty-state copy is dry. You invoke `/ce-polish`.
 
 The skill verifies you're on a feature branch (not main), checks for `.claude/launch.json` (none), runs `detect-project-type.sh` (detects `next`), reads `references/dev-server-next.md` for the start command, resolves your package manager (pnpm) via `resolve-package-manager.sh`, picks port 3000, and starts `pnpm dev` in the background. After 4 seconds, `localhost:3000` responds. The skill opens it in Cursor's built-in browser.
 
@@ -87,14 +87,14 @@ You're happy. The agent commits the fixes. You move on with `/ce-commit-push-pr`
 
 ## When to Reach For It
 
-Reach for `ce-polish-beta` when:
+Reach for `ce-polish` when:
 
 - The feature already works and you're refining UX/visual feel
 - You can articulate issues by *seeing* them, not by writing them down up front
 - Hot-reload + browser-side iteration would beat the alternative (chat → screenshot → describe → fix → repeat)
 - The change set is visual: spacing, copy, transitions, affordances, empty states, micro-interactions
 
-Skip `ce-polish-beta` when:
+Skip `ce-polish` when:
 
 - The feature isn't built yet → use `/ce-work`
 - The polish needs design specs (Figma comparison, brand-system alignment) → use `/ce-frontend-design` or a dedicated design-sync skill
@@ -104,10 +104,10 @@ Skip `ce-polish-beta` when:
 
 ## Use as Part of the Workflow
 
-`ce-polish-beta` is invoked late, after a feature is functionally complete:
+`ce-polish` is invoked late, after a feature is functionally complete:
 
 ```text
-/ce-work or /ce-debug → feature works → /ce-polish-beta → /ce-commit-push-pr
+/ce-work or /ce-debug → feature works → /ce-polish → /ce-commit-push-pr
 ```
 
 It doesn't have direct callers in the chain — polish is a deliberate user invocation when the work needs visual refinement. After the polish loop ends, the standard shipping handoff is `/ce-commit-push-pr` to open the PR.
@@ -118,9 +118,9 @@ It doesn't have direct callers in the chain — polish is a deliberate user invo
 
 The skill is always invoked standalone:
 
-- **Current branch** — `/ce-polish-beta`
-- **Specific PR** — `/ce-polish-beta 1234` (checks out the PR)
-- **Specific branch** — `/ce-polish-beta feat/notification-settings`
+- **Current branch** — `/ce-polish`
+- **Specific PR** — `/ce-polish 1234` (checks out the PR)
+- **Specific branch** — `/ce-polish feat/notification-settings`
 
 When the framework is unknown to the auto-detector, the skill asks how to start the project. Adding a `.claude/launch.json` to the repo persists the answer for next time.
 
@@ -145,8 +145,8 @@ Supporting files:
 
 ## FAQ
 
-**Why is it beta?**
-The conversational iteration shape is intentionally simple, but the framework detection and browser-handoff plumbing is broad — there are edge cases on uncommon project layouts. Beta status (`disable-model-invocation: true`) keeps it from auto-firing while it stabilizes. Invoke explicitly.
+**Why is it manual-invocation only?**
+Polish starts a dev server and runs the checked-out branch's code — a side-effecting action that should be a deliberate choice, not something the model auto-fires when you were just looking at a page. `disable-model-invocation: true` keeps it from triggering unless you invoke it explicitly. Type `/ce-polish` when you want it.
 
 **What if my framework isn't on the detection list?**
 The skill asks how to start the project. You can add a `.claude/launch.json` to persist the answer for future runs.

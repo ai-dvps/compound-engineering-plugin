@@ -10,7 +10,7 @@ const resolvePackageManager = path.join(
   "plugins",
   "compound-engineering",
   "skills",
-  "ce-polish-beta",
+  "ce-polish",
   "scripts",
   "resolve-package-manager.sh",
 )
