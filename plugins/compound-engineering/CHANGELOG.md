@@ -9,6 +9,40 @@ All notable changes to the compound-engineering plugin will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.0](https://github.com/ai-dvps/compound-engineering-plugin/compare/compound-engineering-v3.12.0...compound-engineering-v3.13.0) (2026-06-11)
+
+
+### Features
+
+* **ce-dogfood-beta:** add diff-scoped browser QA dogfood skill ([#848](https://github.com/ai-dvps/compound-engineering-plugin/issues/848)) ([0aa6b55](https://github.com/ai-dvps/compound-engineering-plugin/commit/0aa6b55a8026728de75aee0ff6ae5a0e006028c5))
+* **ce-plan,ce-brainstorm:** contract-driven sections + optional HTML output ([#826](https://github.com/ai-dvps/compound-engineering-plugin/issues/826)) ([11e12e5](https://github.com/ai-dvps/compound-engineering-plugin/commit/11e12e5739c6691a2020eb8b70a944587e7f265f))
+* **ce-plan:** approach-altitude plan-for-a-plan with ce-work non-code carve-out ([#905](https://github.com/ai-dvps/compound-engineering-plugin/issues/905)) ([fbd0faf](https://github.com/ai-dvps/compound-engineering-plugin/commit/fbd0fafd9358ab708b15fdc0030615525a0cd684))
+* **ce-promote:** add ce-promote skill for post-ship announcement copy ([#888](https://github.com/ai-dvps/compound-engineering-plugin/issues/888)) ([0939187](https://github.com/ai-dvps/compound-engineering-plugin/commit/09391874b4be1a248bc7d627b0ebd5c29f0c886b))
+* HTML-first ideation docs and a status-free plan model ([#921](https://github.com/ai-dvps/compound-engineering-plugin/issues/921)) ([e74e298](https://github.com/ai-dvps/compound-engineering-plugin/commit/e74e29864fbfa2f800fc3e08509e2966e4947f1e))
+* **skill:** introduce CONCEPTS.md as shared vocabulary substrate ([#838](https://github.com/ai-dvps/compound-engineering-plugin/issues/838)) ([7c4bb16](https://github.com/ai-dvps/compound-engineering-plugin/commit/7c4bb16123412d97ded593fc785d206ecb9684bc))
+
+
+### Bug Fixes
+
+* **agents:** rename .agent.md to .md for VS Code Copilot tool access ([#846](https://github.com/ai-dvps/compound-engineering-plugin/issues/846)) ([796bea7](https://github.com/ai-dvps/compound-engineering-plugin/commit/796bea75b74f3b101b53f7cc1c108aece0979e6b))
+* **ce-brainstorm,ce-plan:** add conceptual-diagram affordance to brainstorm docs ([#871](https://github.com/ai-dvps/compound-engineering-plugin/issues/871)) ([e5e3fc3](https://github.com/ai-dvps/compound-engineering-plugin/commit/e5e3fc3630c026ae0eae6637d8b7a342af862e66))
+* **ce-brainstorm,ce-plan:** restore default-on requirements grouping ([#868](https://github.com/ai-dvps/compound-engineering-plugin/issues/868)) ([5c88212](https://github.com/ai-dvps/compound-engineering-plugin/commit/5c88212c1fd310d27033e7e8508e782e1f19cfdc))
+* **ce-commit-push-pr:** require user-visible bug summaries ([#853](https://github.com/ai-dvps/compound-engineering-plugin/issues/853)) ([67d2736](https://github.com/ai-dvps/compound-engineering-plugin/commit/67d273622e40a7b28f18c95f65379a36726ca558))
+* **ce-compound:** drop date suffix from generated doc filenames ([#849](https://github.com/ai-dvps/compound-engineering-plugin/issues/849)) ([ac1c6d9](https://github.com/ai-dvps/compound-engineering-plugin/commit/ac1c6d9a997d4f8eaba1ba55d8b44500ca393cd4))
+* **ce-plan:** add answer-seeking disposition to universal planning ([#886](https://github.com/ai-dvps/compound-engineering-plugin/issues/886)) ([ece9fa1](https://github.com/ai-dvps/compound-engineering-plugin/commit/ece9fa1f1f40a267b3ab7c4aa94126e3f5623b09))
+* **ce-plan:** honor explicit external-research requests and route them by intent ([#875](https://github.com/ai-dvps/compound-engineering-plugin/issues/875)) ([b3e396d](https://github.com/ai-dvps/compound-engineering-plugin/commit/b3e396d0bfd7be0c672cb7193a5cfa40675e6979))
+* **ce-polish:** promote from beta to stable ([#880](https://github.com/ai-dvps/compound-engineering-plugin/issues/880)) ([63b6b26](https://github.com/ai-dvps/compound-engineering-plugin/commit/63b6b260c345ba70ce9d9a393eeedefb64e4e0a0))
+* **ce-proof:** update HITL flow for Proof v2 ([#847](https://github.com/ai-dvps/compound-engineering-plugin/issues/847)) ([2a46670](https://github.com/ai-dvps/compound-engineering-plugin/commit/2a46670958e8c102ea32cb2c532fb00a5e29f6e4))
+* **ce-release-notes:** placeholder links ([#915](https://github.com/ai-dvps/compound-engineering-plugin/issues/915)) ([b625049](https://github.com/ai-dvps/compound-engineering-plugin/commit/b6250490bec4c0488d68ad66d72bd99f6edb95fd))
+* **ce-resolve-pr-feedback:** drop clustering, default to merit-based fixing ([#893](https://github.com/ai-dvps/compound-engineering-plugin/issues/893)) ([3e77a7b](https://github.com/ai-dvps/compound-engineering-plugin/commit/3e77a7bd8450fef7270f8b46c0f1865fd7125741))
+* **ce-resolve-pr-feedback:** fail loudly when repo auto-detection fails ([#908](https://github.com/ai-dvps/compound-engineering-plugin/issues/908)) ([bb0c9ab](https://github.com/ai-dvps/compound-engineering-plugin/commit/bb0c9ab4ee596d546f2965222e0ec8c2a097ae53))
+* **ce-resolve-pr-feedback:** prevent replies landing on wrong PR from GHE node ID mismatch ([#910](https://github.com/ai-dvps/compound-engineering-plugin/issues/910)) ([6f9ab03](https://github.com/ai-dvps/compound-engineering-plugin/commit/6f9ab03a031c054a8046659926251fb6c149269f))
+* **ce-sessions:** emit repo root path instead of basename subshell ([#873](https://github.com/ai-dvps/compound-engineering-plugin/issues/873)) ([253dba8](https://github.com/ai-dvps/compound-engineering-plugin/commit/253dba80dd08c111edae3f7fdc8fac998ec0d5cb))
+* **commit:** auto-create feature branch on default branch ([#856](https://github.com/ai-dvps/compound-engineering-plugin/issues/856)) ([26a8025](https://github.com/ai-dvps/compound-engineering-plugin/commit/26a802551e44d12b837ac5d3e33fc7ffacbbf354))
+* **html-rendering:** constrain measure and surface execution notes ([#870](https://github.com/ai-dvps/compound-engineering-plugin/issues/870)) ([1051132](https://github.com/ai-dvps/compound-engineering-plugin/commit/1051132d04153c3045fc4c929cff32882c6934fe))
+* reduce verbosity and remove HTML comments from generated docs ([#906](https://github.com/ai-dvps/compound-engineering-plugin/issues/906)) ([debc915](https://github.com/ai-dvps/compound-engineering-plugin/commit/debc915c5886a22c049e871304b7f991363e1155))
+* **simplify-code:** guard against over-simplification and behavior drift ([#859](https://github.com/ai-dvps/compound-engineering-plugin/issues/859)) ([673dcfa](https://github.com/ai-dvps/compound-engineering-plugin/commit/673dcfacb8089476961a0f7d5d1b3a7ac2a84c37))
+
 ## [3.12.0](https://github.com/EveryInc/compound-engineering-plugin/compare/compound-engineering-v3.11.2...compound-engineering-v3.12.0) (2026-06-09)
 
 

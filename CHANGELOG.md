@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.13.0](https://github.com/ai-dvps/compound-engineering-plugin/compare/cli-v3.12.0...cli-v3.13.0) (2026-06-11)
+
+
+### Features
+
+* **ce-plan,ce-brainstorm:** contract-driven sections + optional HTML output ([#826](https://github.com/ai-dvps/compound-engineering-plugin/issues/826)) ([11e12e5](https://github.com/ai-dvps/compound-engineering-plugin/commit/11e12e5739c6691a2020eb8b70a944587e7f265f))
+* HTML-first ideation docs and a status-free plan model ([#921](https://github.com/ai-dvps/compound-engineering-plugin/issues/921)) ([e74e298](https://github.com/ai-dvps/compound-engineering-plugin/commit/e74e29864fbfa2f800fc3e08509e2966e4947f1e))
+* **skill:** introduce CONCEPTS.md as shared vocabulary substrate ([#838](https://github.com/ai-dvps/compound-engineering-plugin/issues/838)) ([7c4bb16](https://github.com/ai-dvps/compound-engineering-plugin/commit/7c4bb16123412d97ded593fc785d206ecb9684bc))
+
+
+### Bug Fixes
+
+* **agents:** rename .agent.md to .md for VS Code Copilot tool access ([#846](https://github.com/ai-dvps/compound-engineering-plugin/issues/846)) ([796bea7](https://github.com/ai-dvps/compound-engineering-plugin/commit/796bea75b74f3b101b53f7cc1c108aece0979e6b))
+* **ce-polish:** promote from beta to stable ([#880](https://github.com/ai-dvps/compound-engineering-plugin/issues/880)) ([63b6b26](https://github.com/ai-dvps/compound-engineering-plugin/commit/63b6b260c345ba70ce9d9a393eeedefb64e4e0a0))
+
 ## [3.12.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.11.2...cli-v3.12.0) (2026-06-09)
 
 
