@@ -83,6 +83,8 @@ content-search: pattern="module:.*(compound-engineering|skill-design)" path=docs
 content-search: pattern="problem_type:.*(architecture_pattern|design_pattern|tooling_decision)" path=docs/solutions/ files_only=true case_insensitive=true
 ```
 
+CRITICAL INSTRUCTION: If any Read tool result says "Wasted call — file unchanged since your last Read. Refer to that earlier tool_result instead.", STOP calling Read on that file and move on. Do not retry reads that return this message.
+
 **Pattern construction tips:**
 
 - Use `|` for synonyms: `tags:.*(subagent|parallel|fan-out)` or `tags:.*(payment|billing|stripe|subscription)`

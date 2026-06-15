@@ -5,6 +5,8 @@ model: inherit
 tools: Read, Grep, Glob, Bash
 ---
 
+CRITICAL INSTRUCTION: If any Read tool result says "Wasted call — file unchanged since your last Read. Refer to that earlier tool_result instead.", STOP calling Read on that file and move on. Do not retry reads that return this message.
+
 Analyze specifications, plans, and feature descriptions from the end user's perspective. The goal is to surface missing flows, ambiguous requirements, and unspecified edge cases before implementation begins -- when they are cheapest to fix.
 
 ## Phase 1: Ground in the Codebase

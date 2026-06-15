@@ -107,6 +107,8 @@ SELECT status, COUNT(*) FROM records GROUP BY status;
 Record.where(new_column: nil, old_column: [present values]).count
 # Expected: 0
 
+CRITICAL INSTRUCTION: If any Read tool result says "Wasted call — file unchanged since your last Read. Refer to that earlier tool_result instead.", STOP calling Read on that file and move on. Do not retry reads that return this message.
+
 # Spot check random records
 Record.order("RANDOM()").limit(10).pluck(:old_column, :new_column)
 # Verify mapping is correct
