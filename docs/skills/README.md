@@ -85,7 +85,7 @@ Invoked when a specific need arises — not part of any chain.
 | [`/ce-commit`](./ce-commit.md) | Create a single, well-crafted git commit — convention-aware, sensitive-file-safe, file-level logical splitting |
 | [`/ce-commit-push-pr`](./ce-commit-push-pr.md) | Go from working changes to an open PR with adaptive descriptions — three modes (full workflow / description update / description-only generation) |
 | [`/ce-clean-gone-branches`](./ce-clean-gone-branches.md) | Delete local branches whose remote tracking branch is gone, including any associated worktrees |
-| [`/ce-worktree`](./ce-worktree.md) | Create a git worktree at `.worktrees/<branch>` with `.env` copying, branch-aware dev-tool trust, and gitignore management |
+| [`/ce-worktree`](./ce-worktree.md) | Ensure work happens in an isolated git worktree — detect existing isolation, prefer the harness's native worktree tool, fall back to plain git |
 
 ---
 
@@ -102,7 +102,7 @@ Invoked when a specific need arises — not part of any chain.
 
 | Skill | Description |
 |-------|-------------|
-| [`/ce-proof`](./ce-proof.md) | Create, share, and run human-in-the-loop review loops over markdown via [Proof](https://www.proofeditor.ai), Every's collaborative editor — Web API and Local Bridge surfaces |
+| [`/ce-proof`](./ce-proof.md) | Publish, view, comment on, and edit markdown via [Proof](https://www.proofeditor.ai), Every's collaborative editor — Web API and Local Bridge surfaces |
 
 ---
 
