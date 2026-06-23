@@ -11,8 +11,9 @@ describe("detectInstalledTools", () => {
 
     // Create directories for some tools
     await fs.mkdir(path.join(tempHome, ".codex"), { recursive: true })
-    await fs.mkdir(path.join(tempHome, ".gemini"), { recursive: true })
+    await fs.mkdir(path.join(tempHome, ".gemini", "antigravity-cli"), { recursive: true })
     await fs.mkdir(path.join(tempHome, ".copilot"), { recursive: true })
+    delete process.env.OPENCODE_CONFIG_DIR
 
     const results = await detectInstalledTools(tempHome, tempCwd)
 
@@ -20,9 +21,9 @@ describe("detectInstalledTools", () => {
     expect(codex?.detected).toBe(true)
     expect(codex?.reason).toContain(".codex")
 
-    const gemini = results.find((t) => t.name === "gemini")
-    expect(gemini?.detected).toBe(true)
-    expect(gemini?.reason).toContain(".gemini")
+    const antigravity = results.find((t) => t.name === "antigravity")
+    expect(antigravity?.detected).toBe(true)
+    expect(antigravity?.reason).toContain("antigravity-cli")
 
     const copilot = results.find((t) => t.name === "copilot")
     expect(copilot?.detected).toBe(true)
@@ -42,10 +43,11 @@ describe("detectInstalledTools", () => {
   test("returns all tools with detected=false when no directories exist", async () => {
     const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "detect-empty-"))
     const tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "detect-empty-cwd-"))
+    delete process.env.OPENCODE_CONFIG_DIR
 
     const results = await detectInstalledTools(tempHome, tempCwd)
 
-    expect(results.length).toBe(8)
+    expect(results.length).toBe(7)
     for (const tool of results) {
       expect(tool.detected).toBe(false)
       expect(tool.reason).toBe("not found")
@@ -65,6 +67,24 @@ describe("detectInstalledTools", () => {
     expect(results.find((t) => t.name === "opencode")?.detected).toBe(true)
     expect(results.find((t) => t.name === "droid")?.detected).toBe(true)
     expect(results.find((t) => t.name === "pi")?.detected).toBe(true)
+  })
+
+  test("detects antigravity at ~/.gemini/antigravity-cli", async () => {
+    const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "detect-agy-home-"))
+    const tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "detect-agy-cwd-"))
+    await fs.mkdir(path.join(tempHome, ".gemini", "antigravity-cli"), { recursive: true })
+
+    const results = await detectInstalledTools(tempHome, tempCwd)
+    expect(results.find((t) => t.name === "antigravity")?.detected).toBe(true)
+  })
+
+  test("detects antigravity at workspace .agy", async () => {
+    const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "detect-agy-home2-"))
+    const tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "detect-agy-cwd2-"))
+    await fs.mkdir(path.join(tempCwd, ".agy"), { recursive: true })
+
+    const results = await detectInstalledTools(tempHome, tempCwd)
+    expect(results.find((t) => t.name === "antigravity")?.detected).toBe(true)
   })
 
   describe("opencode OPENCODE_CONFIG_DIR", () => {
@@ -164,12 +184,13 @@ describe("getDetectedTargetNames", () => {
     const tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "detect-names-cwd-"))
 
     await fs.mkdir(path.join(tempHome, ".codex"), { recursive: true })
-    await fs.mkdir(path.join(tempHome, ".gemini"), { recursive: true })
+    await fs.mkdir(path.join(tempHome, ".gemini", "antigravity-cli"), { recursive: true })
+    delete process.env.OPENCODE_CONFIG_DIR
 
     const names = await getDetectedTargetNames(tempHome, tempCwd)
 
     expect(names).toContain("codex")
-    expect(names).toContain("gemini")
+    expect(names).toContain("antigravity")
     expect(names).not.toContain("opencode")
     expect(names).not.toContain("droid")
     expect(names).not.toContain("pi")
@@ -179,6 +200,7 @@ describe("getDetectedTargetNames", () => {
   test("returns empty array when nothing detected", async () => {
     const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "detect-none-"))
     const tempCwd = await fs.mkdtemp(path.join(os.tmpdir(), "detect-none-cwd-"))
+    delete process.env.OPENCODE_CONFIG_DIR
 
     const names = await getDetectedTargetNames(tempHome, tempCwd)
     expect(names).toEqual([])

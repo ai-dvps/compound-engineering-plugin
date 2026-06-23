@@ -6,7 +6,7 @@ import { parseFrontmatter } from "../src/utils/frontmatter"
 
 // Conversion-drift smoke test.
 //
-// Converts the REAL plugin (plugins/compound-engineering) -- not fixtures --
+// Converts the REAL root plugin -- not fixtures --
 // to every implemented target via the CLI, then structurally validates each
 // output tree. Expected counts are
 // re-derived from the source tree (agents/, commands/, skills/ plus
@@ -23,7 +23,7 @@ import { parseFrontmatter } from "../src/utils/frontmatter"
 const repoRoot = path.join(import.meta.dir, "..")
 const cliEntry = path.join(repoRoot, "src", "index.ts")
 
-const IMPLEMENTED_TARGETS = ["opencode", "codex", "pi", "gemini", "kiro"] as const
+const IMPLEMENTED_TARGETS = ["opencode", "codex", "pi", "antigravity"] as const
 type Target = (typeof IMPLEMENTED_TARGETS)[number]
 
 const PLUGIN_NAMES = ["compound-engineering"] as const
@@ -45,7 +45,7 @@ type PluginName = (typeof PLUGIN_NAMES)[number]
 type SourceInventory = {
   agents: string[]
   commands: string[]
-  skills: { name: string; cePlatforms?: string[] }[]
+  skills: { name: string; cePlatforms?: string[]; userInvocable?: boolean }[]
 }
 
 function listFileBasenames(dir: string, extension: string): string[] {
@@ -84,7 +84,7 @@ function walkFiles(dir: string): string[] {
 }
 
 function loadSourceInventory(pluginName: PluginName): SourceInventory {
-  const pluginRoot = path.join(repoRoot, "plugins", pluginName)
+  const pluginRoot = pluginName === "compound-engineering" ? repoRoot : path.join(repoRoot, "plugins", pluginName)
   const agents = listFileBasenames(path.join(pluginRoot, "agents"), ".md")
   const commands = listFileBasenames(path.join(pluginRoot, "commands"), ".md")
   const skills: SourceInventory["skills"] = []
@@ -99,7 +99,8 @@ function loadSourceInventory(pluginName: PluginName): SourceInventory {
     }
     const { data } = parseFrontmatter(raw, skillFile)
     const cePlatforms = Array.isArray(data.ce_platforms) ? (data.ce_platforms as string[]) : undefined
-    skills.push({ name, cePlatforms })
+    const userInvocable = data["user-invocable"] === false ? false : undefined
+    skills.push({ name, cePlatforms, userInvocable })
   }
   return { agents, commands, skills }
 }
@@ -108,11 +109,25 @@ function loadSourceInventory(pluginName: PluginName): SourceInventory {
 // expected skill list must come from an independent reading of the source
 // frontmatter so a regression in the converter's platform filter (or an
 // undocumented new exclusion) shows up as a set difference here. The only
-// intentional exclusion today is `ce_platforms` (e.g. ce-update is
-// claude-only and is dropped from every converted target).
+// intentional exclusion today is `ce_platforms`.
 function skillsForPlatform(inventory: SourceInventory, target: Target): string[] {
   return inventory.skills
     .filter((skill) => !skill.cePlatforms || skill.cePlatforms.includes(target))
+    .map((skill) => skill.name)
+    .sort()
+}
+
+// Mirrors convertSkillsToCommands (src/converters/claude-to-opencode.ts) on
+// purpose: OpenCode generates one slash-command stub per platform-eligible
+// skill, excluding only those that opt out of user invocation
+// (`user-invocable: false`). `disable-model-invocation` does NOT exclude a skill
+// -- it marks user-invocation-only skills, which need the slash command most.
+// Derived independently from source frontmatter so a regression in the exclusion
+// shows up as a set difference here.
+function commandStubsForPlatform(inventory: SourceInventory, target: Target): string[] {
+  return inventory.skills
+    .filter((skill) => !skill.cePlatforms || skill.cePlatforms.includes(target))
+    .filter((skill) => skill.userInvocable !== false)
     .map((skill) => skill.name)
     .sort()
 }
@@ -168,15 +183,10 @@ function targetInvocation(target: Target, tempRoot: string): { args: string[]; r
       const out = path.join(tempRoot, "pi-home", ".pi")
       return { args: ["--pi-home", out], root: out }
     }
-    case "gemini": {
-      // Without --output gemini defaults to <cwd>/.gemini.
-      const out = path.join(tempRoot, "gemini-out")
-      return { args: ["--output", out], root: path.join(out, ".gemini") }
-    }
-    case "kiro": {
-      // Without --output kiro defaults to <cwd>/.kiro.
-      const out = path.join(tempRoot, "kiro-out")
-      return { args: ["--output", out], root: path.join(out, ".kiro") }
+    case "antigravity": {
+      // Without --output antigravity defaults to <cwd>/.agy.
+      const out = path.join(tempRoot, "antigravity-out")
+      return { args: ["--output", out], root: path.join(out, ".agy") }
     }
   }
 }
@@ -193,7 +203,7 @@ async function runConvert(pluginName: PluginName, target: Target, tempRoot: stri
     "run",
     cliEntry,
     "convert",
-    path.join(repoRoot, "plugins", pluginName),
+    pluginName === "compound-engineering" ? repoRoot : path.join(repoRoot, "plugins", pluginName),
     "--to",
     target,
     ...args,
@@ -263,7 +273,7 @@ for (const pluginName of PLUGIN_NAMES) {
 
       // Sandbox safety: with explicit output flags, no target may fall back to
       // a home-relative default (the redirected HOME would catch it).
-      for (const leaked of [".codex", ".pi", ".gemini", ".kiro", ".agents", path.join(".config", "opencode")]) {
+      for (const leaked of [".codex", ".pi", ".agy", ".agents", path.join(".config", "opencode")]) {
         expect(
           await exists(path.join(fakeHome, leaked)),
           `convert leaked ${leaked} into HOME despite explicit output flags`,
@@ -274,6 +284,9 @@ for (const pluginName of PLUGIN_NAMES) {
     test("opencode output matches the source inventory", () => {
       const { root } = getConversion(pluginName, "opencode")
       const expectedSkills = skillsForPlatform(inventory, "opencode")
+      // OpenCode emits one slash-command stub per invocable skill, plus any
+      // explicit commands/ entries (none for the skills-only root plugin).
+      const expectedCommands = [...new Set([...inventory.commands, ...commandStubsForPlatform(inventory, "opencode")])].sort()
 
       const config = readJson(path.join(root, "opencode.json"))
       expect(config.$schema).toBe("https://opencode.ai/config.json")
@@ -283,7 +296,7 @@ for (const pluginName of PLUGIN_NAMES) {
       expect(listFileBasenames(path.join(opencodeRoot, "agents"), ".md")).toEqual(inventory.agents)
       expect(listDirNames(path.join(opencodeRoot, "skills"))).toEqual(expectedSkills)
       expectSkillDirsHaveSkillMd(path.join(opencodeRoot, "skills"), expectedSkills)
-      expect(listFileBasenames(path.join(opencodeRoot, "commands"), ".md")).toEqual(inventory.commands)
+      expect(listFileBasenames(path.join(opencodeRoot, "commands"), ".md")).toEqual(expectedCommands)
 
       const manifest = readJson(path.join(opencodeRoot, pluginName, "install-manifest.json"))
       expect(manifest.version).toBe(1)
@@ -291,7 +304,7 @@ for (const pluginName of PLUGIN_NAMES) {
       const groups = manifest.groups as Record<string, string[]>
       expect(groups.agents.length).toBe(inventory.agents.length)
       expect(groups.skills.length).toBe(expectedSkills.length)
-      expect(groups.commands.length).toBe(inventory.commands.length)
+      expect(groups.commands.length).toBe(expectedCommands.length)
     })
 
     test("codex output matches the source inventory", () => {
@@ -346,54 +359,20 @@ for (const pluginName of PLUGIN_NAMES) {
       expect((manifest.prompts as string[]).length).toBe(inventory.commands.length)
     })
 
-    test("gemini output matches the source inventory", () => {
-      const { root } = getConversion(pluginName, "gemini")
-      const expectedSkills = skillsForPlatform(inventory, "gemini")
+    test("antigravity output matches the source inventory", () => {
+      const { root } = getConversion(pluginName, "antigravity")
+      const expectedSkills = skillsForPlatform(inventory, "antigravity")
 
       expect(listFileBasenames(path.join(root, "agents"), ".md")).toEqual(inventory.agents)
       expect(listDirNames(path.join(root, "skills"))).toEqual(expectedSkills)
       expectSkillDirsHaveSkillMd(path.join(root, "skills"), expectedSkills)
       expect(listFileBasenames(path.join(root, "commands"), ".toml")).toEqual(inventory.commands)
 
-      const manifest = readJson(path.join(root, pluginName, "install-manifest.json"))
-      expect(manifest.version).toBe(1)
-      expect(manifest.pluginName).toBe(pluginName)
-      const groups = manifest.groups as Record<string, string[]>
-      expect(groups.agents.length).toBe(inventory.agents.length)
-      expect(groups.skills.length).toBe(expectedSkills.length)
-      expect(groups.commands.length).toBe(inventory.commands.length)
-    })
-
-    test("kiro output matches the source inventory", async () => {
-      const { root } = getConversion(pluginName, "kiro")
-      // Like codex, kiro turns commands into generated skills.
-      const expectedSkills = [...new Set([...skillsForPlatform(inventory, "kiro"), ...inventory.commands])].sort()
-
-      const agentJsonNames = listFileBasenames(path.join(root, "agents"), ".json")
-      expect(agentJsonNames).toEqual(inventory.agents)
-      for (const name of agentJsonNames) {
-        const agent = readJson(path.join(root, "agents", `${name}.json`))
-        expect(agent.name, `${name}.json must carry its own agent name`).toBe(name)
-        expect(typeof agent.description, `${name}.json must carry a description`).toBe("string")
-      }
-      // Agent prompt bodies are split into a sibling prompts/ dir, one per agent.
-      expect(listFileBasenames(path.join(root, "agents", "prompts"), ".md")).toEqual(inventory.agents)
-
-      expect(listDirNames(path.join(root, "skills"))).toEqual(expectedSkills)
-      expectSkillDirsHaveSkillMd(path.join(root, "skills"), expectedSkills)
-
-      // Steering is built from the plugin's own AGENTS.md, so it exists
-      // exactly when the source plugin ships one.
-      const hasPluginAgentsMd = await exists(path.join(repoRoot, "plugins", pluginName, "AGENTS.md"))
-      expect(
-        await exists(path.join(root, "steering", `${pluginName}.md`)),
-        `steering/${pluginName}.md should exist iff plugins/${pluginName}/AGENTS.md exists`,
-      ).toBe(hasPluginAgentsMd)
-
-      // The kiro writer has no managed install manifest (cleanup is
-      // allow-list based). If one appears, the writer contract changed and
-      // this test should be updated deliberately.
-      expect(await exists(path.join(root, pluginName, "install-manifest.json"))).toBe(false)
+      // agy ingests a plugin bundle with a root plugin.json {name, version};
+      // it does not use the gemini install-manifest.
+      const manifest = readJson(path.join(root, "plugin.json"))
+      expect(manifest.name).toBe(pluginName)
+      expect(typeof manifest.version).toBe("string")
     })
 
     test("every emitted .json parses and every emitted .md has parseable frontmatter", () => {
@@ -424,4 +403,3 @@ for (const pluginName of PLUGIN_NAMES) {
     })
   })
 }
-
