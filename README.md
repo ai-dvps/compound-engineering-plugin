@@ -105,7 +105,7 @@ The first pass tightens recent branch changes before review. The targeted pass i
 
 After installing, run `/ce-setup` in any project. It checks repo-local config, reports optional tool capabilities, and helps keep machine-local CE settings safely gitignored.
 
-The `compound-engineering` plugin currently ships 27 skills and 0 standalone agents. Specialist review, research, and workflow behavior lives inside the owning skills as skill-local prompt assets.
+The `compound-engineering` plugin currently ships 26 skills and 0 standalone agents. Specialist review, research, and workflow behavior lives inside the owning skills as skill-local prompt assets.
 
 ### Full Skill Inventory
 
@@ -136,7 +136,6 @@ The `compound-engineering` plugin currently ships 27 skills and 0 standalone age
 | `/ce-polish` | Start a dev server and iterate on UX polish |
 | `/ce-proof` | Create, edit, and share Proof documents |
 | `/ce-dogfood-beta` | Diff-scoped browser QA of the active branch |
-| `/ce-work-beta` | Experimental execution workflow with Codex delegation mode |
 | `/lfg` | Full autonomous engineering workflow |
 
 ---

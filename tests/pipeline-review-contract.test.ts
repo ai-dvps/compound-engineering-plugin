@@ -50,38 +50,6 @@ describe("ce-work review contract", () => {
     expect(content).not.toContain("[HARNESS_URL]")
   })
 
-  test("ce-work-beta mirrors review and commit delegation", async () => {
-    const beta = await readRepoFile("skills/ce-work-beta/SKILL.md")
-    // Review/commit content extracted to references/shipping-workflow.md
-    const shipping = await readRepoFile("skills/ce-work-beta/references/shipping-workflow.md")
-
-    // Extracted content in reference file: Simplify step at position 2,
-    // Code Review at position 3
-    expect(shipping).toContain("2. **Simplify**")
-    expect(shipping).toContain("3. **Code Review**")
-    expect(shipping).toContain("`ce-commit-push-pr` skill")
-    expect(shipping).toContain("`ce-commit` skill")
-
-    // Negative assertions stay on SKILL.md
-    expect(beta).not.toContain("Consider Code Review")
-    expect(beta).not.toContain("gh pr create")
-  })
-
-  test("ce-work-beta mirrors residual work gate sentinel with ce-work", async () => {
-    const workShipping = await readRepoFile(
-      "skills/ce-work/references/shipping-workflow.md",
-    )
-    const betaShipping = await readRepoFile(
-      "skills/ce-work-beta/references/shipping-workflow.md",
-    )
-
-    expect(workShipping).toContain("Actionable findings: none.")
-    expect(betaShipping).toContain("Actionable findings: none.")
-    expect(betaShipping).not.toContain("Residual actionable work: none.")
-    expect(betaShipping).toContain("not yet fixed")
-    expect(betaShipping).not.toContain("skill did not auto-fix")
-  })
-
   test("includes per-task testing deliberation in execution loop", async () => {
     const content = await readRepoFile("skills/ce-work/SKILL.md")
 
@@ -110,37 +78,8 @@ describe("ce-work review contract", () => {
     expect(shipping).not.toContain("Tests pass (run project's test command)")
   })
 
-  test("ce-work-beta mirrors testing deliberation and checklist changes", async () => {
-    const beta = await readRepoFile("skills/ce-work-beta/SKILL.md")
-    // Checklist extracted to references/shipping-workflow.md
-    const shipping = await readRepoFile("skills/ce-work-beta/references/shipping-workflow.md")
-
-    // Testing deliberation stays in SKILL.md (Phase 2 content)
-    expect(beta).toContain("Assess testing coverage")
-
-    // New checklist language in reference file
-    expect(shipping).toContain("Testing addressed")
-
-    // Old language removed from both
-    expect(beta).not.toContain("Tests pass (run project's test command)")
-    expect(beta).not.toContain("- All tests pass")
-    expect(shipping).not.toContain("Tests pass (run project's test command)")
-  })
-
   test("SKILL.md stub points to shipping-workflow reference", async () => {
     const content = await readRepoFile("skills/ce-work/SKILL.md")
-
-    // Stub references the shipping-workflow file
-    expect(content).toContain("`references/shipping-workflow.md`")
-
-    // Extracted content is not in SKILL.md
-    expect(content).not.toContain("3. **Code Review**")
-    expect(content).not.toContain("## Quality Checklist")
-    expect(content).not.toContain("## Code Review Tiers")
-  })
-
-  test("ce:work-beta SKILL.md stub points to shipping-workflow reference", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
 
     // Stub references the shipping-workflow file
     expect(content).toContain("`references/shipping-workflow.md`")
@@ -160,131 +99,7 @@ describe("ce-work review contract", () => {
   })
 })
 
-describe("ce:work-beta codex delegation contract", () => {
-  test("has argument parsing with delegate tokens", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    // Argument parsing section exists with delegation tokens
-    expect(content).toContain("## Argument Parsing")
-    expect(content).toContain("`delegate:codex`")
-    expect(content).toContain("`delegate:local`")
-
-    // Resolution chain present
-    expect(content).toContain("### Settings Resolution Chain")
-    expect(content).toContain("work_delegate")
-    expect(content).toContain("config.local.yaml")
-  })
-
-  test("argument-hint includes delegate:codex for discoverability", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("argument-hint:")
-    expect(content).toContain("delegate:codex")
-  })
-
-  test("remains manual-invocation beta during rollout", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("disable-model-invocation: true")
-    expect(content).toContain("Invoke `ce-work-beta` manually")
-    expect(content).toContain("planning and workflow handoffs remain pointed at stable `ce-work`")
-  })
-
-  test("SKILL.md has delegation routing stub pointing to reference", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("## Codex Delegation Mode")
-    expect(content).toContain("references/codex-delegation-workflow.md")
-    // Delegation details are NOT in SKILL.md body — they're in the reference
-    expect(content).not.toContain("### Pre-Delegation Checks")
-    expect(content).not.toContain("### Prompt Template")
-    expect(content).not.toContain("### Execution Loop")
-  })
-
-  test("delegation routing gate in Phase 1 Step 4", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    const gateIdx = content.indexOf("Delegation routing gate")
-    const strategyTableIdx = content.indexOf("| **Inline**")
-    expect(gateIdx).toBeGreaterThan(0)
-    expect(gateIdx).toBeLessThan(strategyTableIdx)
-    expect(content).toContain("Codex delegation requires a plan file")
-  })
-
-  test("delegation branches in Phase 2 task loop", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("If delegation_active: branch to the Codex Delegation Execution Loop")
-  })
-
-  test("delegation reference has all required sections", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/references/codex-delegation-workflow.md")
-
-    // Pre-delegation checks
-    expect(content).toContain("## Pre-Delegation Checks")
-    expect(content).toContain("Platform Gate")
-    expect(content).toContain("CODEX_SANDBOX")
-    expect(content).toContain("command -v codex")
-    expect(content).toContain("Consent Flow")
-
-    // Batching
-    expect(content).toContain("## Batching")
-
-    // Prompt template
-    expect(content).toContain("## Prompt Template")
-    expect(content).toContain("<task>")
-    expect(content).toContain("<execution_note>")
-    expect(content).toContain("<constraints>")
-    expect(content).toContain("<output_contract>")
-    expect(content).toContain("test-first")
-    expect(content).toContain("characterization-first")
-    expect(content).toContain("the orchestrator will not re-run verification independently")
-
-    // Result schema and execution loop
-    expect(content).toContain("## Result Schema")
-    expect(content).toContain("## Execution Loop")
-    expect(content).toContain("codex exec")
-
-    // Circuit breaker
-    expect(content).toContain("consecutive_failures")
-    expect(content).toContain("3 consecutive failures")
-
-    // Rollback safety
-    expect(content).toContain("git diff --quiet HEAD")
-    expect(content).toContain("git checkout -- .")
-    expect(content).toContain("Do NOT use bare `git clean -fd` without path arguments")
-
-    // Mixed-model attribution
-    expect(content).toContain("## Mixed-Model Attribution")
-  })
-
-  test("delegation reference has decision prompts for ask mode", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/references/codex-delegation-workflow.md")
-
-    expect(content).toContain("## Delegation Decision")
-    expect(content).toContain("work_delegate_decision")
-    expect(content).toContain("Execute with Claude Code instead")
-    expect(content).toContain("Delegate to Codex anyway")
-    expect(content).toContain("the cost of delegating outweighs having Claude Code do them")
-  })
-
-  test("settings resolution includes delegation decision setting", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("work_delegate_decision")
-    expect(content).toContain("`auto`")
-    expect(content).toContain("`ask`")
-  })
-
-  test("has frontend design guidance ported from beta", async () => {
-    const content = await readRepoFile("skills/ce-work-beta/SKILL.md")
-
-    expect(content).toContain("**Frontend Design Guidance**")
-    expect(content).toContain("Apply the frontend guidance embedded in this skill")
-  })
-})
-
-describe("ce:plan remains neutral during ce:work-beta rollout", () => {
+describe("ce-plan stays neutral on delegation", () => {
   test("removes delegation-specific execution posture guidance", async () => {
     const content = await readRepoFile("skills/ce-plan/SKILL.md")
 
